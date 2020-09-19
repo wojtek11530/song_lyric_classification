@@ -119,4 +119,8 @@ def assess_emotion_two_classes(emotion_four_classes: str) -> str:
 if __name__ == '__main__':
     pmemo_df = get_pmemo_data_frame()
     emomusic_df = get_emomusic_data_frame()
-    get_moody_lyrics_data_frame()
+    moodyLyrics4Q_df = get_moody_lyrics_data_frame()
+
+    df = pd.concat([pmemo_df, emomusic_df, moodyLyrics4Q_df], ignore_index=True)
+    merged_dataset_filename = 'merged_datasets.csv'
+    df.to_csv(os.path.join(_DATASET_PATH, merged_dataset_filename))
