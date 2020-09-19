@@ -8,3 +8,4 @@ tox
 
 ### Project packages ###
 gdown
+requests
