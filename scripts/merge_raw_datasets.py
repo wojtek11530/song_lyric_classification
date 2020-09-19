@@ -28,18 +28,19 @@ def get_pmemo_data_frame() -> pd.DataFrame:
     df_annotations_mean = pd.read_csv(os.path.join(_DATASET_PATH, pmemo_dataset_name, 'static_annotations.csv'))
     df_annotations_std = pd.read_csv(os.path.join(_DATASET_PATH, pmemo_dataset_name, 'static_annotations_std.csv'))
 
-    df = df_metadata.merge(df_annotations_mean, on='musicId').merge(df_annotations_std, on='musicId')
-    df['dataset'] = pmemo_dataset_name
-    df['genre'] = np.nan
-    df = df.rename(columns={'musicId': 'song_id_from_src',
-                            'Arousal(mean)': 'arousal_mean',
-                            'Arousal(std)': 'arousal_std',
-                            'Valence(mean)': 'valence_mean',
-                            'Valence(std)': 'valence_std'})
-    df['emotion_4Q'] = df.apply(lambda x: assess_emotion_four_classes(x['arousal_mean'], x['valence_mean']), axis=1)
-    df['emotion_2Q'] = df.apply(lambda x: assess_emotion_two_classes(x['emotion_4Q']), axis=1)
-    df = df[_COLUMNS_IN_DF_ORDER]
-    return df
+    pmemo_df = df_metadata.merge(df_annotations_mean, on='musicId').merge(df_annotations_std, on='musicId')
+    pmemo_df['dataset'] = pmemo_dataset_name
+    pmemo_df['genre'] = np.nan
+    pmemo_df = pmemo_df.rename(columns={'musicId': 'song_id_from_src',
+                                        'Arousal(mean)': 'arousal_mean',
+                                        'Arousal(std)': 'arousal_std',
+                                        'Valence(mean)': 'valence_mean',
+                                        'Valence(std)': 'valence_std'})
+    pmemo_df['emotion_4Q'] = pmemo_df.apply(lambda x: assess_emotion_four_classes(x['arousal_mean'], x['valence_mean']),
+                                            axis=1)
+    pmemo_df['emotion_2Q'] = pmemo_df.apply(lambda x: assess_emotion_two_classes(x['emotion_4Q']), axis=1)
+    pmemo_df = pmemo_df[_COLUMNS_IN_DF_ORDER]
+    return pmemo_df
 
 
 def get_emomusic_data_frame() -> pd.DataFrame:
@@ -54,9 +55,9 @@ def get_emomusic_data_frame() -> pd.DataFrame:
     df_songs['Artist'] = df_songs['Artist'].apply(lambda x: re.sub("\t", "", x))
     df_songs['Genre'] = df_songs['Genre'].apply(lambda x: re.sub("\t", "", x))
 
-    df = df_songs.merge(df_annotations, on='song_id')
-    df['dataset'] = emomusic_dataset_name
-    df = df.rename(columns={
+    wmomusic_df = df_songs.merge(df_annotations, on='song_id')
+    wmomusic_df['dataset'] = emomusic_dataset_name
+    wmomusic_df = wmomusic_df.rename(columns={
         'Song title': 'title',
         'Artist': 'artist',
         'Genre': 'genre',
@@ -67,35 +68,36 @@ def get_emomusic_data_frame() -> pd.DataFrame:
         'song_id': 'song_id_from_src'})
 
     # scaling arousal and valance values from interval [1, 9] into [0, 1]
-    df['arousal_mean'] = df.apply(lambda x: (x['arousal_mean'] - 1) / 8, axis=1)
-    df['arousal_std'] = df.apply(lambda x: x['arousal_std'] / 8, axis=1)
-    df['valence_mean'] = df.apply(lambda x: (x['valence_mean'] - 1) / 8, axis=1)
-    df['valence_std'] = df.apply(lambda x: x['valence_std'] / 8, axis=1)
+    wmomusic_df['arousal_mean'] = wmomusic_df.apply(lambda x: (x['arousal_mean'] - 1) / 8, axis=1)
+    wmomusic_df['arousal_std'] = wmomusic_df.apply(lambda x: x['arousal_std'] / 8, axis=1)
+    wmomusic_df['valence_mean'] = wmomusic_df.apply(lambda x: (x['valence_mean'] - 1) / 8, axis=1)
+    wmomusic_df['valence_std'] = wmomusic_df.apply(lambda x: x['valence_std'] / 8, axis=1)
 
-    df['emotion_4Q'] = df.apply(lambda row: assess_emotion_four_classes(row['arousal_mean'], row['valence_mean']),
-                                axis=1)
-    df['emotion_2Q'] = df.apply(lambda row: assess_emotion_two_classes(row['emotion_4Q']), axis=1)
-    df = df[_COLUMNS_IN_DF_ORDER]
-    return df
+    wmomusic_df['emotion_4Q'] = wmomusic_df.apply(
+        lambda row: assess_emotion_four_classes(row['arousal_mean'], row['valence_mean']),
+        axis=1)
+    wmomusic_df['emotion_2Q'] = wmomusic_df.apply(lambda row: assess_emotion_two_classes(row['emotion_4Q']), axis=1)
+    wmomusic_df = wmomusic_df[_COLUMNS_IN_DF_ORDER]
+    return wmomusic_df
 
 
 def get_moody_lyrics_data_frame() -> pd.DataFrame:
     moody_lyrics_dataset_name = 'MoodyLyrics4Q'
 
-    df = pd.read_csv(os.path.join(_DATASET_PATH, moody_lyrics_dataset_name, 'MoodyLyrics4Q.csv'))
-    df['dataset'] = moody_lyrics_dataset_name
-    df['genre'] = np.nan
-    df['arousal_mean'] = np.nan
-    df['arousal_std'] = np.nan
-    df['valence_mean'] = np.nan
-    df['valence_std'] = np.nan
+    moody_lyrics_df = pd.read_csv(os.path.join(_DATASET_PATH, moody_lyrics_dataset_name, 'MoodyLyrics4Q.csv'))
+    moody_lyrics_df['dataset'] = moody_lyrics_dataset_name
+    moody_lyrics_df['genre'] = np.nan
+    moody_lyrics_df['arousal_mean'] = np.nan
+    moody_lyrics_df['arousal_std'] = np.nan
+    moody_lyrics_df['valence_mean'] = np.nan
+    moody_lyrics_df['valence_std'] = np.nan
 
-    df = df.rename(columns={
+    moody_lyrics_df = moody_lyrics_df.rename(columns={
         'index': 'song_id_from_src',
         'mood': 'emotion_4Q'})
-    df['emotion_2Q'] = df.apply(lambda x: assess_emotion_two_classes(x['emotion_4Q']), axis=1)
-    df = df[_COLUMNS_IN_DF_ORDER]
-    return df
+    moody_lyrics_df['emotion_2Q'] = moody_lyrics_df.apply(lambda x: assess_emotion_two_classes(x['emotion_4Q']), axis=1)
+    moody_lyrics_df = moody_lyrics_df[_COLUMNS_IN_DF_ORDER]
+    return moody_lyrics_df
 
 
 def assess_emotion_four_classes(arousal: float, valance: float) -> str:
