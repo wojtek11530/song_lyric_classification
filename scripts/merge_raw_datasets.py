@@ -53,6 +53,7 @@ def get_emomusic_data_frame() -> pd.DataFrame:
     df_songs['Song title'] = df_songs['Song title'].apply(lambda x: re.sub("\t", "", x))
     df_songs['Artist'] = df_songs['Artist'].apply(lambda x: re.sub("\t", "", x))
     df_songs['Genre'] = df_songs['Genre'].apply(lambda x: re.sub("\t", "", x))
+
     df = df_songs.merge(df_annotations, on='song_id')
     df['dataset'] = emomusic_dataset_name
     df = df.rename(columns={
@@ -78,6 +79,25 @@ def get_emomusic_data_frame() -> pd.DataFrame:
     return df
 
 
+def get_moody_lyrics_data_frame() -> pd.DataFrame:
+    moody_lyrics_dataset_name = 'MoodyLyrics4Q'
+
+    df = pd.read_csv(os.path.join(_DATASET_PATH, moody_lyrics_dataset_name, 'MoodyLyrics4Q.csv'))
+    df['dataset'] = moody_lyrics_dataset_name
+    df['genre'] = np.nan
+    df['arousal_mean'] = np.nan
+    df['arousal_std'] = np.nan
+    df['valence_mean'] = np.nan
+    df['valence_std'] = np.nan
+
+    df = df.rename(columns={
+        'index': 'song_id_from_src',
+        'mood': 'emotion_4Q'})
+    df['emotion_2Q'] = df.apply(lambda x: assess_emotion_two_classes(x['emotion_4Q']), axis=1)
+    df = df[_COLUMNS_IN_DF_ORDER]
+    return df
+
+
 def assess_emotion_four_classes(arousal: float, valance: float) -> str:
     if arousal >= 0.5 and valance >= 0.5:
         return 'happy'
@@ -99,3 +119,4 @@ def assess_emotion_two_classes(emotion_four_classes: str) -> str:
 if __name__ == '__main__':
     pmemo_df = get_pmemo_data_frame()
     emomusic_df = get_emomusic_data_frame()
+    get_moody_lyrics_data_frame()
