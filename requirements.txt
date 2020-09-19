@@ -8,4 +8,5 @@ tox
 
 ### Project packages ###
 gdown
+pandas
 requests
