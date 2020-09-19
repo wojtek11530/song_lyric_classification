@@ -8,6 +8,7 @@ tox
 
 ### Project packages ###
 gdown
+langdetect
 lyricsgenius
 numpy
 pandas
