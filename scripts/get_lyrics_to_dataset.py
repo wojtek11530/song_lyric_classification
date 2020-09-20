@@ -45,11 +45,11 @@ def filter_language(df: pd.DataFrame, language_code: str) -> pd.DataFrame:
 
 def get_genres(df: pd.DataFrame) -> None:
     print("Getting genres")
-    for i, row in df.iterrows():
-        print(f"{datetime.now():%Y-%m-%d %H:%M:%S}\t{i + 1}/{len(df)}")
+    for line_number, (index, row) in enumerate(df.iterrows()):
+        print(f"{datetime.now():%Y-%m-%d %H:%M:%S}\t{line_number + 1}/{len(df)}")
         if pd.isna(row['genre']) or row['genre'] == 'null':
             genre = get_genres_for_row(row)
-            df.at[i, 'genre'] = genre
+            df.at[index, 'genre'] = genre
 
 
 def get_lyric_for_row(row: pd.Series) -> str:
@@ -100,7 +100,7 @@ def get_http_link(artist_query, title_query):
 
 
 if __name__ == '__main__':
-    song_df = pd.read_csv(os.path.join(_DATASET_PATH, _DATA_FILE))
+    song_df = pd.read_csv(os.path.join(_DATASET_PATH, _DATA_FILE), index_col=0)
     song_df = get_lyrics(song_df)
     song_df = filter_language(song_df, _LANGUAGE_CODE)
     get_genres(song_df)
