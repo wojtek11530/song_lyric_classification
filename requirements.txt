@@ -1,0 +1,15 @@
+### Development tools ###
+pytest
+pytest-flakes
+pytest-isort
+pytest-mypy
+pytest-pycodestyle
+tox
+
+### Project packages ###
+gdown
+langdetect
+lyricsgenius
+numpy
+pandas
+requests
