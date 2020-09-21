@@ -1,6 +1,7 @@
 import os
 import re
 
+import numpy as np
 import pandas as pd
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +12,39 @@ _LIMIT = 10000
 _LIMIT_WITHOUT_BRACKETS = 5500
 
 _TEXT_WITH_BRACKETS_REGEX_PATTERN_ = r'[\[\(].*?[\)\]]'
+
+_GENRE_MAPPER = {
+    'Jazz': 'Jazz', 'Soul': 'Jazz', 'Swing': 'Jazz', 'Gospel': 'Jazz', 'Acid Jazz': 'Jazz', 'Lounge': 'Jazz',
+    'Big Band': 'Jazz',
+
+    'Rock': 'Rock', 'Rock & Roll': 'Rock', 'Alternative Rock': 'Rock', 'R&B': 'Rock', 'Hard Rock': 'Rock',
+    'Indie Rock': 'Rock', 'Psychedelic Rock': 'Rock', 'Blues': 'Rock', 'New Wave': 'Rock', 'Ska': 'Rock',
+    'Acoustic': 'Rock', 'Post-Punk': 'Rock', 'Progressive Rock': 'Rock', 'Grunge': 'Rock', 'HardCore Punk': 'Rock',
+    'Pop-Punk': 'Rock', 'Punk Rock': 'Rock', 'Hardcore Punk': 'Rock', 'Classic Rock': 'Rock',
+    'Emo': 'Rock', 'Post-Rock': 'Rock', 'Big Beat': 'Rock', 'Goth': 'Rock', 'Stoner Rock': 'Rock',
+
+    'Metal': 'Metal', 'Heavy Metal': 'Metal', 'Thrash Metal': 'Metal', 'Progressive Metal': 'Metal',
+    'Symphonic Metal': 'Metal', 'Alternative Metal': 'Metal', 'Doom Metal': 'Metal', 'Industrial Metal': 'Metal',
+    'Metalcore': 'Metal', 'Rap Metal': 'Metal', 'Post-Hardcore': 'Metal', 'Death Metal': 'Metal',
+    'Grindcore': 'Metal', 'Gothic Metal': 'Metal', 'Black Metal': 'Metal', 'Nu Metal': 'Metal', 'Speed Metal': 'Metal',
+    'Hardcore': 'Metal', 'Folk Metal': 'Metal',
+
+    'BlueGrass': 'Country', 'Country': 'Country', 'Folk': 'Country', 'Alternative Country': 'Country',
+
+    'Pop': 'Pop', 'Synthpop': 'Pop', 'Country Pop': 'Pop', 'Indie Pop': 'Pop', 'Indie': 'Pop', 'Pop-Rock': 'Pop',
+    'Reggae': 'Pop', 'Latin': 'Pop', 'Funk': 'Pop', 'Dance': 'Pop', 'Drum & Bass': 'Pop', 'Euro Dance': 'Pop',
+    'Disco': 'Pop',
+
+    'Hip-Hop': 'Hip-Hop', 'Rap': 'Hip-Hop', 'Alternative Hip-Hop': 'Hip-Hop', 'Grime': 'Hip-Hop', 'Trip Hop': 'Hip-Hop',
+
+    'Electronic': 'Electronic', 'Deep House': 'Electronic', 'House': 'Electronic', 'Techno': 'Electronic',
+    'Electro House': 'Electronic', 'Trance': 'Electronic', 'Breaks': 'Electronic', 'New Age': 'Electronic',
+    'Ambient': 'Electronic', 'Electro-Industrial': 'Electronic', 'UK Garage': 'Electronic',
+
+    'World/Ethnic': None, 'Avant-Garde': None, 'Comedy': None, 'Downtempo': None, 'Classical': None,
+    'Experimental': None, 'Singer Songwriter': None,
+    None: None, pd.NA: None, np.nan: None
+}
 
 song_df = pd.read_csv(os.path.join(_DATASET_PATH, _DATA_FILE), index_col=0)
 
@@ -32,5 +66,9 @@ song_df['lyrics_without_brackets'] = song_df.apply(
 
 song_df['lyrics_without_brackets'] = song_df.apply(lambda x: re.sub(r'\s+', ' ', x['lyrics_without_brackets']), axis=1)
 song_df['lyrics_without_brackets'] = song_df.apply(lambda x: x['lyrics_without_brackets'].lstrip(), axis=1)
+
+song_df = song_df[song_df['lyrics_without_brackets'] != '']
+
+song_df['general_genre'] = song_df.apply(lambda x: _GENRE_MAPPER[x['genre']], axis=1)
 
 song_df.to_csv(os.path.join(_DATASET_PATH, 'preprocessed_' + _DATA_FILE))
