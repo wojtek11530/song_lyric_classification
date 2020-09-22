@@ -8,6 +8,7 @@ tox
 
 ### Project packages ###
 gdown
+fasttext
 langdetect
 lyricsgenius
 numpy
