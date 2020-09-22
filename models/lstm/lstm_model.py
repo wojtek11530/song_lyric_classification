@@ -12,12 +12,13 @@ from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
 
-_TRAIN_DATASET_FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'datasets',
-                                       'train_dataset.csv')
-_VAL_DATASET_FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'datasets',
-                                     'val_dataset.csv')
-_TEST_DATASET_FILEPATH = os.path.join(os.path.dirname(__file__), '..', 'datasets',
-                                      'test_dataset.csv')
+_DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+_WORKERS_NUM = 4
+
+_PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_TRAIN_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'train_dataset.csv')
+_VAL_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'val_dataset.csv')
+_TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_dataset.csv')
 
 
 def pad_collate(batch: List[Tuple[np.ndarray, int]]) \
@@ -34,7 +35,7 @@ def pad_collate(batch: List[Tuple[np.ndarray, int]]) \
 
 class LSTMClassifier(BaseModel):
 
-    def __init__(self, input_dim: int = 100, learning_rate: float = 1e-3, hidden_dim: int = 100,
+    def __init__(self, input_dim: int = 300, learning_rate: float = 1e-3, hidden_dim: int = 100,
                  layer_dim: int = 1, output_dim: int = 4, batch_size: int = 128,
                  dropout: float = 0.3, bidirectional: bool = False):
         super(LSTMClassifier, self).__init__()
@@ -55,6 +56,8 @@ class LSTMClassifier(BaseModel):
         self._batch_size = batch_size
 
         self._word_embedder = WordEmbedder()
+
+        self.to(_DEVICE)
 
     def forward(self, x: torch.nn.utils.rnn.PackedSequence) -> torch.Tensor:
 
@@ -83,24 +86,26 @@ class LSTMClassifier(BaseModel):
         if self._train_set is None:
             self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH)
         return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True,
-                          drop_last=True, collate_fn=pad_collate)
+                          drop_last=True, collate_fn=pad_collate, num_workers=_WORKERS_NUM)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
             self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH)
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=True,
-                          collate_fn=pad_collate)
+                          collate_fn=pad_collate, num_workers=_WORKERS_NUM)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
             self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH)
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=True,
-                          collate_fn=pad_collate)
+                          collate_fn=pad_collate, num_workers=_WORKERS_NUM)
 
     def training_step(self,
                       batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor],
                       batch_idx: int) -> Dict[str, Any]:
         x, y_labels = batch
+        x = x.to(_DEVICE)
+        y_labels = y_labels.to(_DEVICE)
         logits = self(x)
         loss = F.cross_entropy(logits, y_labels)
         total = len(y_labels)
@@ -118,6 +123,8 @@ class LSTMClassifier(BaseModel):
                         batch_idx: int) \
             -> Dict[str, Any]:
         x, y_labels = val_batch
+        x = x.to(_DEVICE)
+        y_labels = y_labels.to(_DEVICE)
         logits = self(x)
         loss = F.cross_entropy(logits, y_labels)
         total = len(y_labels)
