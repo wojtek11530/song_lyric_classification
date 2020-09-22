@@ -13,5 +13,7 @@ langdetect
 lyricsgenius
 numpy
 pandas
+pytorch-lightning
 requests
 scikit-learn
+torch
