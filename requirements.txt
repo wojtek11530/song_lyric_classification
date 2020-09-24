@@ -7,6 +7,7 @@ pytest-pycodestyle
 tox
 
 ### Project packages ###
+pybind11
 gdown
 gensim
 fasttext
