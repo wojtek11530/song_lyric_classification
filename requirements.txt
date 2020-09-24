@@ -8,10 +8,12 @@ tox
 
 ### Project packages ###
 gdown
+gensim
 fasttext
 langdetect
 lyricsgenius
 numpy
+nltk
 pandas
 pytorch-lightning
 requests
