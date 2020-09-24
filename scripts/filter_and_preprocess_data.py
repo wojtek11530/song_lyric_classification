@@ -60,8 +60,8 @@ _GENRE_MAPPER = {
 
 song_df = pd.read_csv(os.path.join(_DATASET_PATH, _DATA_FILE), index_col=0)
 
-index_to_drop = [22, 23, 114, 392, 1141, 1144, 1245, 1273, 1342, 1426, 1500, 2099, 2309, 2537, 1377,
-                 3159, 3298, 3442]
+index_to_drop = [22, 23, 114, 242, 392, 581, 765, 1141, 1144, 1245, 1273, 1342, 1377, 1426, 1822, 1500, 2099, 2309,
+                 2537, 2610, 2674, 3159, 3298, 3442]
 song_df.drop(index_to_drop, inplace=True)
 
 song_df = song_df[song_df["lyrics"].str.len() < _LIMIT]
@@ -71,6 +71,7 @@ for i in song_df.index:
             len(song_df.loc[i, "lyrics"]) > _LIMIT_WITHOUT_BRACKETS:
         song_df.drop([i], inplace=True)
 
+song_df.drop_duplicates(['lyrics'], inplace=True)
 song_df['lyrics'] = song_df.apply(lambda x: x['lyrics'].lower(), axis=1)
 song_df['lyrics_with_brackets'] = song_df['lyrics']
 song_df['lyrics'] = song_df.apply(
