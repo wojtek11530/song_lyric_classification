@@ -11,9 +11,7 @@ _DATA_FILE = 'dataset_with_lyrics.csv'
 _LIMIT = 10000
 _LIMIT_WITHOUT_BRACKETS = 5500
 
-_TEXT_WITH_BRACKETS_REGEX_PATTERN_ = r'[\(\[].*?[\)\]]'
-
-
+_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_ = r'[\(\[].*?[\)\]]'
 
 _GENRE_MAPPER = {
     'Jazz': 'Jazz', 'Soul': 'Jazz', 'Swing': 'Jazz', 'Gospel': 'Jazz', 'Acid Jazz': 'Jazz',
@@ -69,25 +67,25 @@ song_df.drop(index_to_drop, inplace=True)
 song_df = song_df[song_df["lyrics"].str.len() < _LIMIT]
 
 for i in song_df.index:
-    if not re.search(_TEXT_WITH_BRACKETS_REGEX_PATTERN_, song_df.loc[i, "lyrics"]) and \
+    if not re.search(_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_, song_df.loc[i, "lyrics"]) and \
             len(song_df.loc[i, "lyrics"]) > _LIMIT_WITHOUT_BRACKETS:
         song_df.drop([i], inplace=True)
 
 song_df['lyrics'] = song_df.apply(lambda x: x['lyrics'].lower(), axis=1)
+song_df['lyrics_with_brackets'] = song_df['lyrics']
+song_df['lyrics'] = song_df.apply(
+    lambda row: re.sub(_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_, "", row['lyrics']), axis=1)
+
+song_df['lyrics_with_brackets'] = song_df.apply(lambda x: re.sub(r'[^\w\s\'\[\(\]\)]', '', x['lyrics_with_brackets']),
+                                                axis=1)
 song_df['lyrics'] = song_df.apply(lambda x: re.sub(r'[^\w\s\']', '', x['lyrics']), axis=1)
-song_df['lyrics'] = song_df.apply(lambda x: re.sub(r'\d', '', x['lyrics']), axis=1)
-song_df['lyrics'] = song_df.apply(lambda x: re.sub(r'\s+', ' ', x['lyrics']), axis=1)
-song_df['lyrics'] = song_df.apply(lambda x: x['lyrics'].strip(), axis=1)
 
-song_df['lyrics_without_brackets'] = song_df.apply(
-    lambda row: re.sub(_TEXT_WITH_BRACKETS_REGEX_PATTERN_, "", row['lyrics']), axis=1)
+for column in ['lyrics', 'lyrics_with_brackets']:
+    song_df[column] = song_df.apply(lambda x: re.sub(r'\d', '', x[column]), axis=1)
+    song_df[column] = song_df.apply(lambda x: re.sub(r'\s+', ' ', x[column]), axis=1)
+    song_df[column] = song_df.apply(lambda x: x[column].strip(), axis=1)
 
-song_df['lyrics_without_brackets'] = song_df.apply(
-    lambda x: re.sub(r'\s+', ' ', x['lyrics_without_brackets']), axis=1)
-song_df['lyrics_without_brackets'] = song_df.apply(lambda x: x['lyrics_without_brackets'].strip(),
-                                                   axis=1)
-
-song_df = song_df[song_df['lyrics_without_brackets'] != '']
+song_df = song_df[song_df['lyrics'] != '']
 
 song_df['general_genre'] = song_df.apply(lambda x: _GENRE_MAPPER[x['genre']], axis=1)
 
