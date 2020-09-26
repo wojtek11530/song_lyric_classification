@@ -72,22 +72,6 @@ for i in song_df.index:
         song_df.drop([i], inplace=True)
 
 song_df.drop_duplicates(['lyrics'], inplace=True)
-song_df['lyrics'] = song_df.apply(lambda x: x['lyrics'].lower(), axis=1)
-song_df['lyrics_with_brackets'] = song_df['lyrics']
-song_df['lyrics'] = song_df.apply(
-    lambda row: re.sub(_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_, "", row['lyrics']), axis=1)
-
-song_df['lyrics_with_punctuation'] = song_df['lyrics']
-song_df['lyrics_with_brackets'] = song_df.apply(lambda x: re.sub(r'[^\w\s\'\[\(\]\)]', '', x['lyrics_with_brackets']),
-                                                axis=1)
-song_df['lyrics'] = song_df.apply(lambda x: re.sub(r'[^\w\s\']', '', x['lyrics']), axis=1)
-
-for column in ['lyrics', 'lyrics_with_brackets', 'lyrics_with_punctuation']:
-    song_df[column] = song_df.apply(lambda x: re.sub(r'\d', '', x[column]), axis=1)
-    song_df[column] = song_df.apply(lambda x: re.sub(r'\s+', ' ', x[column]), axis=1)
-    song_df[column] = song_df.apply(lambda x: x[column].strip(), axis=1)
-
-song_df = song_df[song_df['lyrics'] != '']
 
 song_df['general_genre'] = song_df.apply(lambda x: _GENRE_MAPPER[x['genre']], axis=1)
 
