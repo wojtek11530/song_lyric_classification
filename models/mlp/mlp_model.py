@@ -130,3 +130,9 @@ class MLPClassifier(BaseModel):
         embedding = np.array([self._word_embedder[word] for word in words])
         avg_embedding = np.mean(embedding, axis=0)
         return torch.from_numpy(avg_embedding)
+
+    def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
+        x, y_labels = batch
+        logits = self(x)
+        _, y_hat = torch.max(logits, dim=1)
+        return y_labels, y_hat

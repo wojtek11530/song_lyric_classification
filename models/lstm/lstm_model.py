@@ -80,20 +80,20 @@ class LSTMClassifier(BaseModel):
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
             self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH)
-        return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True, collate_fn=pad_collate)
+        return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=pad_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
             self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH)
-        return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=True, collate_fn=pad_collate)
+        return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False, collate_fn=pad_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
             self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH)
-        return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=True, collate_fn=pad_collate)
+        return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=pad_collate)
 
     def training_step(self,
-                      batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor],
+                      batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]],
                       batch_idx: int) -> Dict[str, Any]:
         x, y_labels, x_lens = batch
         logits = self(x, x_lens)
@@ -109,7 +109,7 @@ class LSTMClassifier(BaseModel):
         tensorboard_logs = {'loss': avg_loss, "train_acc": correct / total}
         return {'loss': avg_loss, 'log': tensorboard_logs}
 
-    def validation_step(self, val_batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor],
+    def validation_step(self, val_batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]],
                         batch_idx: int) \
             -> Dict[str, Any]:
         x, y_labels, x_lens = val_batch
@@ -148,3 +148,9 @@ class LSTMClassifier(BaseModel):
         embeddings_packed = pack_padded_sequence(embeddings_pad, [len(words)], batch_first=True,
                                                  enforce_sorted=False)
         return embeddings_packed
+
+    def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
+        x, y_labels, x_lens = batch
+        logits = self(x, x_lens)
+        _, y_hat = torch.max(logits, dim=1)
+        return y_labels, y_hat
