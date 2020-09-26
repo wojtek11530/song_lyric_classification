@@ -4,7 +4,6 @@ import shutil
 
 import fasttext
 import pandas as pd
-
 from nltk.tokenize import sent_tokenize
 
 from preprocessing.text_preprocessor import preprocess, remove_stop_words

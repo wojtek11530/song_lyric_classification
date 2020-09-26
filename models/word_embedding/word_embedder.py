@@ -1,7 +1,6 @@
 import os
 
 import numpy as np
-
 from gensim.models.fasttext import load_facebook_model
 
 from utils.singleton import Singleton
