@@ -6,7 +6,7 @@ from gensim.models.fasttext import load_facebook_model
 
 from utils.singleton import Singleton
 
-_MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fasttext_model.bin')
+_MODEL_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fasttext_model_200_stopwords_removed.bin')
 
 
 class WordEmbedder(metaclass=Singleton):

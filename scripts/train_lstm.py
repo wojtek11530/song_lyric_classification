@@ -17,14 +17,14 @@ def run_train_lstm():
         gpus=1
     )
     model = LSTMClassifier(
-        input_dim=100,
+        input_dim=200,
         output_dim=4,
         bidirectional=False,
         dropout=0.5,
         batch_size=32,
-        layer_dim=4,
-        learning_rate=5e-4,
-        weight_decay=1e-4
+        layer_dim=1,
+        learning_rate=1e-4,
+        weight_decay=5e-3
     )
     my_trainer.fit(model)
     model_name = 'saved_lstm_model_' + datetime.now().strftime('%m-%d-%Y_%H.%M.%S') + '.pt'

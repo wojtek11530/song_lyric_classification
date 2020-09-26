@@ -1,5 +1,10 @@
 import re
 
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+
+STOP_WORDS = set(stopwords.words('english'))
+
 _TEXT_WITHIN_BRACKETS_REGEX_PATTERN_ = r'[\(\[].*?[\)\]]'
 
 
@@ -16,3 +21,7 @@ def preprocess(text: str, remove_punctuation: bool, remove_text_in_brackets: boo
     text = re.sub(r'\s+', ' ', text)
     text = text.strip()
     return text
+
+
+def remove_stop_words(text: str) -> str:
+    return ' '.join([word for word in word_tokenize(text) if word not in STOP_WORDS])
