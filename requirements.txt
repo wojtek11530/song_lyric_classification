@@ -7,10 +7,16 @@ pytest-pycodestyle
 tox
 
 ### Project packages ###
+pybind11
 gdown
+gensim
 fasttext
 langdetect
 lyricsgenius
 numpy
+nltk
 pandas
+pytorch-lightning
 requests
+scikit-learn
+torch
