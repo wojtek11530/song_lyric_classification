@@ -13,13 +13,12 @@ class LyricsDataset(Dataset):
     def __init__(self, filepath: str):
         song_df = pd.read_csv(filepath, index_col=0)
 
-        self.emotion_data = label_encoder.transform(song_df['emotion_4Q'])
-
         song_df['lyrics'] = song_df.apply(
             lambda x: preprocess(x['lyrics'], remove_punctuation=True, remove_text_in_brackets=True),
             axis=1)
         song_df = song_df[song_df['lyrics'] != '']
 
+        self.emotion_data = label_encoder.transform(song_df['emotion_4Q'])
         self.lyrics_data = song_df['lyrics'].values
         self.word_embedder = WordEmbedder()
 
