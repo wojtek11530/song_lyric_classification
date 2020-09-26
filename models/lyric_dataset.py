@@ -6,16 +6,21 @@ from torch.utils.data import Dataset
 
 from models.label_encoder import label_encoder
 from models.word_embedding.word_embedder import WordEmbedder
+from preprocessing.text_preprocessor import preprocess
 
 
 class LyricsDataset(Dataset):
     def __init__(self, filepath: str):
-        dataset = pd.read_csv(filepath, index_col=0)
+        song_df = pd.read_csv(filepath, index_col=0)
 
-        emotion = dataset['emotion_4Q']
-        self.emotion_data = label_encoder.transform(emotion)
-        self.lyrics_data = dataset['lyrics'].values
+        self.emotion_data = label_encoder.transform(song_df['emotion_4Q'])
 
+        song_df['lyrics'] = song_df.apply(
+            lambda x: preprocess(x['lyrics'], remove_punctuation=True, remove_text_in_brackets=True),
+            axis=1)
+        song_df = song_df[song_df['lyrics'] != '']
+
+        self.lyrics_data = song_df['lyrics'].values
         self.word_embedder = WordEmbedder()
 
     def __getitem__(self, index: int) -> Tuple[np.ndarray, int]:

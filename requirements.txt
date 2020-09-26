@@ -13,10 +13,12 @@ gensim
 fasttext
 langdetect
 lyricsgenius
+matplotlib
 numpy
 nltk
 pandas
 pytorch-lightning
 requests
 scikit-learn
+seaborn
 torch
