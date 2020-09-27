@@ -17,7 +17,8 @@ def run_train_mlp():
         'dropout': 0.5,
         'batch_size': 64,
         'learning_rate': 1e-3,
-        'weight_decay': 1e-5
+        'weight_decay': 1e-5,
+        'removing_stop_words': True
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
@@ -40,7 +41,7 @@ def run_train_mlp():
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
     name = 'MLP_input_' + str(hp['input_size']) + '_drop_' + str(hp['dropout']) + '_lr_' + \
-           str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay'])
+           str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + '_rem_sw_' + str(hp['removing_stop_words'])
     return name
 
 

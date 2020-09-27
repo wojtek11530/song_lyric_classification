@@ -14,9 +14,13 @@ from models.mlp.mlp_model import MLPClassifier
 _CLASS_NAMES = label_encoder.classes_
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_LSTM_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'lstm', 'saved_lstm_model_09-26-2020_14.46.17.pt')
+_LSTM_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'lstm',
+    'LSTM_input_200_drop_0.5_lay_num_2_lr_0.005_wd_0.005_max_words_200_rem_sw_True_09-27-2020_15.17.31.pt'
+)
 
-_MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp', 'saved_mlp_model_09-26-2020_15.22.41.pt')
+_MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp',
+                               'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_09-27-2020_13.54.38.pt')
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -40,19 +44,28 @@ def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     plt.show()
 
 
-lstm_model = LSTMClassifier(
-    input_dim=200,
-    output_dim=4,
-    bidirectional=False,
-    dropout=0.5,
-    batch_size=32,
-    layer_dim=1,
-    learning_rate=1e-4,
-    weight_decay=5e-3
-)
-lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=device))
-evaluate_model(lstm_model)
+def evaluate_lstm():
+    lstm_model = LSTMClassifier(
+        input_dim=200,
+        output_dim=4,
+        bidirectional=False,
+        dropout=0.5,
+        batch_size=32,
+        layer_dim=2,
+        learning_rate=5e-3,
+        weight_decay=5e-3,
+        removing_stop_words=True
+    )
+    lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=device))
+    evaluate_model(lstm_model)
 
-mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3, batch_size=64)
-mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
-evaluate_model(mlp_model)
+
+def evaluate_mlp():
+    mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3,
+                              batch_size=64, removing_stop_words=True)
+    mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
+    evaluate_model(mlp_model)
+
+
+# evaluate_mlp()
+evaluate_lstm()

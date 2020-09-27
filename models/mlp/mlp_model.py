@@ -29,7 +29,7 @@ def avg_embedding_collate(batch: List[Tuple[np.ndarray, int]]) -> Tuple[torch.Te
 class MLPClassifier(BaseModel):
     def __init__(self, input_size: int = 100, output_size: int = 4,
                  learning_rate: float = 1e-3, weight_decay: float = 1e-5,
-                 dropout: float = 0.5, batch_size: int = 128):
+                 dropout: float = 0.5, batch_size: int = 128, removing_stop_words: bool = False):
         super(MLPClassifier, self).__init__()
 
         self._train_set: Optional[Dataset] = None
@@ -46,6 +46,7 @@ class MLPClassifier(BaseModel):
         self._word_embedder = WordEmbedder()
 
         self._weight_decay = weight_decay
+        self._removing_stop_words = removing_stop_words
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x = x.view(x.size(0), -1)
