@@ -16,7 +16,7 @@ class LyricsDataset(Dataset):
         song_df['lyrics'] = song_df.apply(
             lambda x: preprocess(x['lyrics'], remove_punctuation=True, remove_text_in_brackets=True),
             axis=1)
-        song_df['lyrics'] = song_df.apply(lambda x: remove_stop_words(x['lyrics']), axis=1)
+        # song_df['lyrics'] = song_df.apply(lambda x: remove_stop_words(x['lyrics']), axis=1)
         song_df = song_df[song_df['lyrics'] != '']
 
         self.emotion_data = label_encoder.transform(song_df['emotion_4Q'])
