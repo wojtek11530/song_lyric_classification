@@ -18,24 +18,12 @@ _TRAIN_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'train_da
 _VAL_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'val_dataset.csv')
 _TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_dataset.csv')
 
-_MAX_WORDS_NUM = 200
-
-
-def pad_collate(batch: List[Tuple[np.ndarray, int]]) \
-        -> Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]]:
-    xx, yy = zip(*batch)
-    xx = [torch.Tensor(x[:_MAX_WORDS_NUM]) for x in xx]
-    yy = torch.Tensor(yy).to(dtype=torch.int64)
-    xx_lens = [len(x) for x in xx]
-    xx_pad = pad_sequence(xx, batch_first=True, padding_value=0)
-    return xx_pad, yy, xx_lens
-
 
 class LSTMClassifier(BaseModel):
 
     def __init__(self, input_dim: int = 300, learning_rate: float = 1e-3, hidden_dim: int = 100,
                  layer_dim: int = 1, output_dim: int = 4, batch_size: int = 128, weight_decay: float = 1e-5,
-                 dropout: float = 0.3, bidirectional: bool = False):
+                 dropout: float = 0.3, bidirectional: bool = False, max_num_words: int = 200):
         super(LSTMClassifier, self).__init__()
 
         self._train_set: Optional[Dataset] = None
@@ -56,7 +44,20 @@ class LSTMClassifier(BaseModel):
         self._batch_size = batch_size
         self._weight_decay = weight_decay
 
+        self._max_num_words = max_num_words
         self._word_embedder = WordEmbedder()
+
+    def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
+            -> Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]]:
+        xx, yy = zip(*batch)
+        if self._max_num_words:
+            xx = [torch.Tensor(x[:self._max_num_words]) for x in xx]
+        else:
+            xx = [torch.Tensor(x) for x in xx]
+        yy = torch.Tensor(yy).to(dtype=torch.int64)
+        xx_lens = [len(x) for x in xx]
+        xx_pad = pad_sequence(xx, batch_first=True, padding_value=0)
+        return xx_pad, yy, xx_lens
 
     def forward(self, x: torch.Tensor, x_lens: List[int]) -> torch.Tensor:
 
@@ -80,17 +81,17 @@ class LSTMClassifier(BaseModel):
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
             self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH)
-        return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=pad_collate)
+        return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=self.pad_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
             self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH)
-        return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False, collate_fn=pad_collate)
+        return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
             self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH)
-        return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=pad_collate)
+        return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def training_step(self,
                       batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]],
