@@ -9,11 +9,14 @@ from sklearn.metrics import classification_report, confusion_matrix
 from models.base import BaseModel
 from models.label_encoder import label_encoder
 from models.lstm.lstm_model import LSTMClassifier
+from models.mlp.mlp_model import MLPClassifier
 
 _CLASS_NAMES = label_encoder.classes_
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'lstm', 'saved_lstm_model_09-26-2020_12.35.49.pt')
+_LSTM_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'lstm', 'saved_lstm_model_09-26-2020_14.46.17.pt')
+
+_MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp', 'saved_mlp_model_09-26-2020_15.22.41.pt')
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -37,7 +40,7 @@ def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     plt.show()
 
 
-model = LSTMClassifier(
+lstm_model = LSTMClassifier(
     input_dim=200,
     output_dim=4,
     bidirectional=False,
@@ -47,5 +50,9 @@ model = LSTMClassifier(
     learning_rate=1e-4,
     weight_decay=5e-3
 )
-model.load_state_dict(torch.load(_MODEL_PATH, map_location=device))
-evaluate_model(model)
+lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=device))
+evaluate_model(lstm_model)
+
+mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3, batch_size=64)
+mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
+evaluate_model(mlp_model)
