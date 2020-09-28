@@ -64,19 +64,19 @@ class MLPClassifier(BaseModel):
 
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
-            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH)
+            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH, removing_stop_words=self._removing_stop_words)
         return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True,
                           drop_last=False, collate_fn=avg_embedding_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
-            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH)
+            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH, removing_stop_words=self._removing_stop_words)
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False,
                           collate_fn=avg_embedding_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
-            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH)
+            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH, removing_stop_words=self._removing_stop_words)
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False,
                           collate_fn=avg_embedding_collate)
 
