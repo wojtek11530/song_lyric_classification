@@ -50,7 +50,7 @@ class LSTMClassifier(BaseModel):
         self._removing_stop_words = removing_stop_words
 
     def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
-            -> Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]]:
+            -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
         xx, yy = zip(*batch)
         if self._max_num_words:
             xx = [torch.Tensor(x[:self._max_num_words]) for x in xx]
@@ -96,7 +96,7 @@ class LSTMClassifier(BaseModel):
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def training_step(self,
-                      batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]],
+                      batch: Tuple[torch.Tensor, torch.Tensor, List[int]],
                       batch_idx: int) -> Dict[str, Any]:
         x, y_labels, x_lens = batch
         logits = self(x, x_lens)
@@ -112,7 +112,7 @@ class LSTMClassifier(BaseModel):
         tensorboard_logs = {'loss': avg_loss, "train_acc": correct / total}
         return {'loss': avg_loss, 'log': tensorboard_logs}
 
-    def validation_step(self, val_batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor, List[int]],
+    def validation_step(self, val_batch: Tuple[torch.Tensor, torch.Tensor, List[int]],
                         batch_idx: int) \
             -> Dict[str, Any]:
         x, y_labels, x_lens = val_batch
