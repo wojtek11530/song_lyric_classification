@@ -14,13 +14,13 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 def run_train_conv_net():
     hp = {
-        'input_dim': 200,
+        'embedding_dim': 200,
         'output_dim': 4,
         'dropout': 0.5,
         'batch_size': 32,
         'learning_rate': 5e-3,
         'weight_decay': 5e-3,
-        'max_num_words': 1000,
+        'max_num_words': 200,
         'removing_stop_words': True
     }
     name = get_tensorboard_log_name(hp)
@@ -43,7 +43,7 @@ def run_train_conv_net():
 
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
-    name = 'ConvNet_input_' + str(hp['input_dim']) + '_drop_' + str(hp['dropout']) + '_lr_' + str(hp['learning_rate']) \
+    name = 'ConvNet_embed_' + str(hp['embedding_dim']) + '_drop_' + str(hp['dropout']) + '_lr_' + str(hp['learning_rate']) \
            + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + \
            '_rem_sw_' + str(hp['removing_stop_words'])
     return name

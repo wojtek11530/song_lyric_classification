@@ -1,5 +1,5 @@
 import os
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import torch
@@ -21,7 +21,7 @@ _TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_data
 
 class ConvNetClassifier(BaseModel):
 
-    def __init__(self, input_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
+    def __init__(self, embedding_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
                  learning_rate: float = 1e-3, weight_decay: float = 1e-5, max_num_words: Optional[int] = 200,
                  removing_stop_words: bool = False):
         super(ConvNetClassifier, self).__init__()
@@ -30,51 +30,56 @@ class ConvNetClassifier(BaseModel):
         self._val_set: Optional[Dataset] = None
         self._test_set: Optional[Dataset] = None
 
-        self._conv_1 = torch.nn.Conv2d(1, 3, kernel_size=5)
-        self._max_pool = torch.nn.MaxPool2d(kernel_size=2, stride=2),
-        # self._fc = torch.nn.Linear(hidden_dim * self._num_directions, output_dim)
-        self._dropout = torch.nn.Dropout(p=dropout)
-
-        self._learning_rate = learning_rate
-
-        self._batch_size = batch_size
-        self._weight_decay = weight_decay
-
-        self._input_dim = input_dim
+        self._embedding_dim = embedding_dim
         self._max_num_words = max_num_words
         self._word_embedder = WordEmbedder()
         self._removing_stop_words = removing_stop_words
+
+        kernels = [3, 5, 7, 9]
+        filters_number = 128
+        self._convs = torch.nn.ModuleList(
+            [torch.nn.Conv1d(in_channels=1,
+                             out_channels=filters_number,
+                             kernel_size=(kernel_size, self._embedding_dim))
+             for kernel_size in kernels])
+
+        fc_1_output_dim = 64
+        self._fc_1 = torch.nn.Linear(filters_number * len(kernels), fc_1_output_dim)
+        self._fc_2 = torch.nn.Linear(fc_1_output_dim, output_dim)
+        self._dropout = torch.nn.Dropout(p=dropout)
+
+        self._learning_rate = learning_rate
+        self._batch_size = batch_size
+        self._weight_decay = weight_decay
 
     def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
             -> Tuple[torch.Tensor, torch.Tensor]:
         xx, yy = zip(*batch)
 
         x_lengths = [len(x) for x in xx]
-        xx_pad = np.zeros((len(xx), self._max_num_words, self._input_dim))
+        xx_pad = np.zeros((len(xx), 1, self._max_num_words, self._embedding_dim))
 
         for i, x_len in enumerate(x_lengths):
             x = xx[i]
             limit = min(x_len, self._max_num_words)
-            xx_pad[i, 0:limit] = x[:limit]
+            xx_pad[i, :, 0:limit] = x[:limit]
         xx_pad = torch.Tensor(xx_pad)
         yy = torch.Tensor(yy).to(dtype=torch.int64)
 
         return xx_pad, yy
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        out = []
+        for conv in self._convs:
+            conv_out = F.relu(conv(x)).squeeze()
+            conv_out = F.max_pool1d(conv_out, kernel_size=conv_out.size()[2])
+            out.append(conv_out)
 
-        current_batch_size = len(x_lens)
-
-        x_packed = pack_padded_sequence(x, x_lens, batch_first=True, enforce_sorted=False)
-
-        output_packed, _ = self._lstm(x_packed)
-        output_unpacked, _ = pad_packed_sequence(output_packed, batch_first=True)
-
-        seq_len_indices = [length - 1 for length in x_lens]
-        batch_indices = [i for i in range(current_batch_size)]
-        out = output_unpacked[batch_indices, seq_len_indices, :]
-        self._dropout(out)
-        out = self._fc(out)
+        out = torch.cat(out, 2)
+        out = out.reshape(out.size()[0], -1)
+        out = F.relu(self._fc_1(out))
+        out = self._dropout(out)
+        out = self._fc_2(out)
         return out
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
