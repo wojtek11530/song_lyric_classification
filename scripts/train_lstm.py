@@ -14,15 +14,15 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 def run_train_lstm():
     hp = {
-        'input_dim': 100,
+        'input_dim': 200,
         'output_dim': 4,
         'bidirectional': False,
         'dropout': 0.5,
         'batch_size': 32,
         'layer_dim': 1,
-        'learning_rate': 1e-4,
+        'learning_rate': 5e-3,
         'weight_decay': 5e-3,
-        'max_num_words': 200,
+        'max_num_words': 100,
         'removing_stop_words': True
     }
     name = get_tensorboard_log_name(hp)

@@ -23,7 +23,7 @@ class LSTMClassifier(BaseModel):
 
     def __init__(self, input_dim: int = 300, learning_rate: float = 1e-3, hidden_dim: int = 100,
                  layer_dim: int = 1, output_dim: int = 4, batch_size: int = 128, weight_decay: float = 1e-5,
-                 dropout: float = 0.3, bidirectional: bool = False, max_num_words: int = 200,
+                 dropout: float = 0.3, bidirectional: bool = False, max_num_words: Optional[int] = 200,
                  removing_stop_words: bool = False):
         super(LSTMClassifier, self).__init__()
 
