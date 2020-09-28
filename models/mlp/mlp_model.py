@@ -29,7 +29,7 @@ def avg_embedding_collate(batch: List[Tuple[np.ndarray, int]]) -> Tuple[torch.Te
 class MLPClassifier(BaseModel):
     def __init__(self, input_size: int = 100, output_size: int = 4,
                  learning_rate: float = 1e-3, weight_decay: float = 1e-5,
-                 dropout: float = 0.5, batch_size: int = 128):
+                 dropout: float = 0.5, batch_size: int = 128, removing_stop_words: bool = False):
         super(MLPClassifier, self).__init__()
 
         self._train_set: Optional[Dataset] = None
@@ -46,6 +46,7 @@ class MLPClassifier(BaseModel):
         self._word_embedder = WordEmbedder()
 
         self._weight_decay = weight_decay
+        self._removing_stop_words = removing_stop_words
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x = x.view(x.size(0), -1)
@@ -63,19 +64,19 @@ class MLPClassifier(BaseModel):
 
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
-            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH)
+            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH, removing_stop_words=self._removing_stop_words)
         return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True,
                           drop_last=False, collate_fn=avg_embedding_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
-            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH)
+            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH, removing_stop_words=self._removing_stop_words)
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False,
                           collate_fn=avg_embedding_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
-            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH)
+            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH, removing_stop_words=self._removing_stop_words)
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False,
                           collate_fn=avg_embedding_collate)
 
@@ -130,3 +131,9 @@ class MLPClassifier(BaseModel):
         embedding = np.array([self._word_embedder[word] for word in words])
         avg_embedding = np.mean(embedding, axis=0)
         return torch.from_numpy(avg_embedding)
+
+    def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
+        x, y_labels = batch
+        logits = self(x)
+        _, y_hat = torch.max(logits, dim=1)
+        return y_labels, y_hat
