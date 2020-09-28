@@ -43,8 +43,8 @@ def run_train_conv_net():
 
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
-    name = 'ConvNet_embed_' + str(hp['embedding_dim']) + '_drop_' + str(hp['dropout']) + '_lr_' + str(hp['learning_rate']) \
-           + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + \
+    name = 'ConvNet_embed_' + str(hp['embedding_dim']) + '_drop_' + str(hp['dropout']) + '_lr_' + \
+           str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + \
            '_rem_sw_' + str(hp['removing_stop_words'])
     return name
 

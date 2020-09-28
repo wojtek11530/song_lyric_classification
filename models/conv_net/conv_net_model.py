@@ -1,10 +1,9 @@
 import os
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
 from torch.nn import functional as F
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, pad_sequence
 from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
@@ -37,11 +36,12 @@ class ConvNetClassifier(BaseModel):
 
         kernels = [3, 5, 7, 9]
         filters_number = 128
-        self._convs = torch.nn.ModuleList(
-            [torch.nn.Conv1d(in_channels=1,
-                             out_channels=filters_number,
-                             kernel_size=(kernel_size, self._embedding_dim))
-             for kernel_size in kernels])
+        self._convs = torch.nn.ModuleList([
+            torch.nn.Conv1d(in_channels=self._embedding_dim,
+                            out_channels=filters_number,
+                            kernel_size=kernel_size)
+            for kernel_size in kernels
+        ])
 
         fc_1_output_dim = 64
         self._fc_1 = torch.nn.Linear(filters_number * len(kernels), fc_1_output_dim)
@@ -57,25 +57,26 @@ class ConvNetClassifier(BaseModel):
         xx, yy = zip(*batch)
 
         x_lengths = [len(x) for x in xx]
-        xx_pad = np.zeros((len(xx), 1, self._max_num_words, self._embedding_dim))
+        xx_pad = np.zeros((len(xx), self._max_num_words, self._embedding_dim))
 
         for i, x_len in enumerate(x_lengths):
             x = xx[i]
             limit = min(x_len, self._max_num_words)
-            xx_pad[i, :, 0:limit] = x[:limit]
+            xx_pad[i, 0:limit] = x[:limit]
         xx_pad = torch.Tensor(xx_pad)
         yy = torch.Tensor(yy).to(dtype=torch.int64)
 
         return xx_pad, yy
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        out = []
+        x = x.permute(0, 2, 1)
+        convolution_layers_outputs = []
         for conv in self._convs:
             conv_out = F.relu(conv(x)).squeeze()
             conv_out = F.max_pool1d(conv_out, kernel_size=conv_out.size()[2])
-            out.append(conv_out)
+            convolution_layers_outputs.append(conv_out)
 
-        out = torch.cat(out, 2)
+        out = torch.cat(convolution_layers_outputs, 2)
         out = out.reshape(out.size()[0], -1)
         out = F.relu(self._fc_1(out))
         out = self._dropout(out)
@@ -147,18 +148,14 @@ class ConvNetClassifier(BaseModel):
         label = probs.argmax(dim=-1, keepdim=True)
         return label.data.numpy()
 
-    def _get_embeddings(self, sentence: str) -> torch.nn.utils.rnn.PackedSequence:
+    def _get_embeddings(self, sentence: str) -> List[torch.Tensor]:
         words = sentence.split()
         embeddings = [self._word_embedder[word] for word in words]
         embeddings = [torch.Tensor(embeddings)]
-
-        embeddings_pad = pad_sequence(embeddings, batch_first=True, padding_value=0)
-        embeddings_packed = pack_padded_sequence(embeddings_pad, [len(words)], batch_first=True,
-                                                 enforce_sorted=False)
-        return embeddings_packed
+        return embeddings
 
     def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
-        x, y_labels, x_lens = batch
-        logits = self(x, x_lens)
+        x, y_labels = batch
+        logits = self(x)
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
