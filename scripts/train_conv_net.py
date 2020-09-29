@@ -18,10 +18,12 @@ def run_train_conv_net():
         'output_dim': 4,
         'dropout': 0.5,
         'batch_size': 32,
-        'learning_rate': 5e-3,
-        'weight_decay': 5e-3,
-        'max_num_words': 200,
-        'removing_stop_words': True
+        'learning_rate': 1e-2,
+        'weight_decay': 1e-3,
+        'filters_number': 32,
+        'kernels_sizes': [3, 5, 7, 10, 15],
+        'max_num_words': 256,
+        'removing_stop_words': False
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
@@ -43,7 +45,8 @@ def run_train_conv_net():
 
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
-    name = 'ConvNet_embed_' + str(hp['embedding_dim']) + '_drop_' + str(hp['dropout']) + '_lr_' + \
+    name = 'ConvNet_embed_' + str(hp['embedding_dim']) + '_filters_num_' + str(hp['filters_number']) + \
+           '_kern_' + str(hp['kernels_sizes']) + '_drop_' + str(hp['dropout']) + '_lr_' + \
            str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + \
            '_rem_sw_' + str(hp['removing_stop_words'])
     return name

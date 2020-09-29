@@ -21,9 +21,13 @@ _TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_data
 class ConvNetClassifier(BaseModel):
 
     def __init__(self, embedding_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
-                 learning_rate: float = 1e-3, weight_decay: float = 1e-5, max_num_words: Optional[int] = 200,
+                 learning_rate: float = 1e-3, filters_number: int = 128, kernels_sizes: Optional[List[int]] = None,
+                 weight_decay: float = 1e-5, max_num_words: int = 200,
                  removing_stop_words: bool = False):
         super(ConvNetClassifier, self).__init__()
+
+        if kernels_sizes is None:
+            kernels_sizes = [3, 5, 7, 9]
 
         self._train_set: Optional[Dataset] = None
         self._val_set: Optional[Dataset] = None
@@ -34,17 +38,15 @@ class ConvNetClassifier(BaseModel):
         self._word_embedder = WordEmbedder()
         self._removing_stop_words = removing_stop_words
 
-        kernels = [3, 5, 7, 9]
-        filters_number = 128
         self._convs = torch.nn.ModuleList([
             torch.nn.Conv1d(in_channels=self._embedding_dim,
                             out_channels=filters_number,
                             kernel_size=kernel_size)
-            for kernel_size in kernels
+            for kernel_size in kernels_sizes
         ])
 
         fc_1_output_dim = 64
-        self._fc_1 = torch.nn.Linear(filters_number * len(kernels), fc_1_output_dim)
+        self._fc_1 = torch.nn.Linear(filters_number * len(kernels_sizes), fc_1_output_dim)
         self._fc_2 = torch.nn.Linear(fc_1_output_dim, output_dim)
         self._dropout = torch.nn.Dropout(p=dropout)
 
@@ -72,7 +74,8 @@ class ConvNetClassifier(BaseModel):
         x = x.permute(0, 2, 1)
         convolution_layers_outputs = []
         for conv in self._convs:
-            conv_out = F.relu(conv(x)).squeeze()
+            conv_out = F.relu(conv(x))
+            conv_out = conv_out.squeeze()
             conv_out = F.max_pool1d(conv_out, kernel_size=conv_out.size()[2])
             convolution_layers_outputs.append(conv_out)
 

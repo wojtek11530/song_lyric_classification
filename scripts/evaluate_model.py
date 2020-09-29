@@ -24,7 +24,7 @@ _MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp',
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net',
-    'ConvNet_embed_200_drop_0.5_lr_0.005_wd_0.005_max_words_200_rem_sw_True_09-28-2020_19.05.50.pt'
+    'ConvNet_embed_200_filters_num_32_kern_[3, 5, 7, 10, 15]_drop_0.5_lr_0.01_wd_0.001_max_words_256_rem_sw_False_09-29-2020_10.25.51.pt'
 )
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -80,10 +80,12 @@ def evaluate_conv_net():
         output_dim=4,
         dropout=0.5,
         batch_size=32,
-        learning_rate=5e-3,
-        weight_decay=5e-3,
-        max_num_words=200,
-        removing_stop_words=True
+        learning_rate=1e-2,
+        weight_decay=1e-3,
+        filters_number=32,
+        kernels_sizes=[3, 5, 7, 10, 15],
+        max_num_words=256,
+        removing_stop_words=False
     )
     conv_model.load_state_dict(torch.load(_CONV_MODEL_PATH, map_location=device))
     evaluate_model(conv_model)
