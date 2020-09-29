@@ -7,6 +7,7 @@ import torch
 from sklearn.metrics import classification_report, confusion_matrix
 
 from models.base import BaseModel
+from models.conv_net.conv_net_model import ConvNetClassifier
 from models.label_encoder import label_encoder
 from models.lstm.lstm_model import LSTMClassifier
 from models.mlp.mlp_model import MLPClassifier
@@ -18,9 +19,14 @@ _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm',
     'LSTM_input_200_drop_0.5_lay_num_1_lr_0.005_wd_0.005_max_words_200_rem_sw_True_v1.pt'
 )
-
 _MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp',
                                'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_09-27-2020_13.54.38.pt')
+
+_CONV_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'conv_net',
+    'ConvNet_embed_200_filters_num_32_kern_[3, 5, 7, 10, 15]_drop_0.5_lr_0.01_wd_0.001_max_words_256_rem_sw_False_09-29-2020_10.25.51.pt'
+)
+
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 
@@ -68,5 +74,23 @@ def evaluate_mlp():
     evaluate_model(mlp_model)
 
 
+def evaluate_conv_net():
+    conv_model = ConvNetClassifier(
+        embedding_dim=200,
+        output_dim=4,
+        dropout=0.5,
+        batch_size=32,
+        learning_rate=1e-2,
+        weight_decay=1e-3,
+        filters_number=32,
+        kernels_sizes=[3, 5, 7, 10, 15],
+        max_num_words=256,
+        removing_stop_words=False
+    )
+    conv_model.load_state_dict(torch.load(_CONV_MODEL_PATH, map_location=device))
+    evaluate_model(conv_model)
+
+
 # evaluate_mlp()
-evaluate_lstm()
+# evaluate_lstm()
+evaluate_conv_net()

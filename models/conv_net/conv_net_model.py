@@ -4,7 +4,6 @@ from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import torch
 from torch.nn import functional as F
-from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, pad_sequence
 from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
@@ -19,62 +18,72 @@ _VAL_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'val_datase
 _TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_dataset.csv')
 
 
-class LSTMClassifier(BaseModel):
+class ConvNetClassifier(BaseModel):
 
-    def __init__(self, input_dim: int = 300, learning_rate: float = 1e-3, hidden_dim: int = 100,
-                 layer_dim: int = 1, output_dim: int = 4, batch_size: int = 128, weight_decay: float = 1e-5,
-                 dropout: float = 0.3, bidirectional: bool = False, max_num_words: Optional[int] = 200,
+    def __init__(self, embedding_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
+                 learning_rate: float = 1e-3, filters_number: int = 128, kernels_sizes: Optional[List[int]] = None,
+                 weight_decay: float = 1e-5, max_num_words: int = 200,
                  removing_stop_words: bool = False):
-        super(LSTMClassifier, self).__init__()
+        super(ConvNetClassifier, self).__init__()
+
+        if kernels_sizes is None:
+            kernels_sizes = [3, 5, 7, 9]
 
         self._train_set: Optional[Dataset] = None
         self._val_set: Optional[Dataset] = None
         self._test_set: Optional[Dataset] = None
 
-        self._hidden_dim = hidden_dim
-        self._layer_dim = layer_dim
-        self._num_directions = 2 if bidirectional else 1
-
-        self._lstm = torch.nn.LSTM(input_dim, hidden_dim, layer_dim, batch_first=True, dropout=dropout,
-                                   bidirectional=bidirectional)
-        self._fc = torch.nn.Linear(hidden_dim * self._num_directions, output_dim)
-        self._dropout = torch.nn.Dropout(p=dropout)
-
-        self._learning_rate = learning_rate
-
-        self._batch_size = batch_size
-        self._weight_decay = weight_decay
-
+        self._embedding_dim = embedding_dim
         self._max_num_words = max_num_words
         self._word_embedder = WordEmbedder()
         self._removing_stop_words = removing_stop_words
 
+        self._convs = torch.nn.ModuleList([
+            torch.nn.Conv1d(in_channels=self._embedding_dim,
+                            out_channels=filters_number,
+                            kernel_size=kernel_size)
+            for kernel_size in kernels_sizes
+        ])
+
+        fc_1_output_dim = 64
+        self._fc_1 = torch.nn.Linear(filters_number * len(kernels_sizes), fc_1_output_dim)
+        self._fc_2 = torch.nn.Linear(fc_1_output_dim, output_dim)
+        self._dropout = torch.nn.Dropout(p=dropout)
+
+        self._learning_rate = learning_rate
+        self._batch_size = batch_size
+        self._weight_decay = weight_decay
+
     def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
-            -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
+            -> Tuple[torch.Tensor, torch.Tensor]:
         xx, yy = zip(*batch)
-        if self._max_num_words:
-            xx = [torch.Tensor(x[:self._max_num_words]) for x in xx]
-        else:
-            xx = [torch.Tensor(x) for x in xx]
+
+        x_lengths = [len(x) for x in xx]
+        xx_pad = np.zeros((len(xx), self._max_num_words, self._embedding_dim))
+
+        for i, x_len in enumerate(x_lengths):
+            x = xx[i]
+            limit = min(x_len, self._max_num_words)
+            xx_pad[i, 0:limit] = x[:limit]
+        xx_pad = torch.Tensor(xx_pad)
         yy = torch.Tensor(yy).to(dtype=torch.int64)
-        xx_lens = [len(x) for x in xx]
-        xx_pad = pad_sequence(xx, batch_first=True, padding_value=0)
-        return xx_pad, yy, xx_lens
 
-    def forward(self, x: torch.Tensor, x_lens: List[int]) -> torch.Tensor:
+        return xx_pad, yy
 
-        current_batch_size = len(x_lens)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        x = x.permute(0, 2, 1)
+        convolution_layers_outputs = []
+        for conv in self._convs:
+            conv_out = F.relu(conv(x))
+            conv_out = conv_out.squeeze()
+            conv_out = F.max_pool1d(conv_out, kernel_size=conv_out.size()[2])
+            convolution_layers_outputs.append(conv_out)
 
-        x_packed = pack_padded_sequence(x, x_lens, batch_first=True, enforce_sorted=False)
-
-        output_packed, _ = self._lstm(x_packed)
-        output_unpacked, _ = pad_packed_sequence(output_packed, batch_first=True)
-
-        seq_len_indices = [length - 1 for length in x_lens]
-        batch_indices = [i for i in range(current_batch_size)]
-        out = output_unpacked[batch_indices, seq_len_indices, :]
-        self._dropout(out)
-        out = self._fc(out)
+        out = torch.cat(convolution_layers_outputs, 2)
+        out = out.reshape(out.size()[0], -1)
+        out = F.relu(self._fc_1(out))
+        out = self._dropout(out)
+        out = self._fc_2(out)
         return out
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
@@ -96,10 +105,10 @@ class LSTMClassifier(BaseModel):
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def training_step(self,
-                      batch: Tuple[torch.Tensor, torch.Tensor, List[int]],
+                      batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor],
                       batch_idx: int) -> Dict[str, Any]:
-        x, y_labels, x_lens = batch
-        logits = self(x, x_lens)
+        x, y_labels = batch
+        logits = self(x)
         loss = F.cross_entropy(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
@@ -112,11 +121,11 @@ class LSTMClassifier(BaseModel):
         tensorboard_logs = {'loss': avg_loss, "train_acc": correct / total}
         return {'loss': avg_loss, 'log': tensorboard_logs}
 
-    def validation_step(self, val_batch: Tuple[torch.Tensor, torch.Tensor, List[int]],
+    def validation_step(self, val_batch: Tuple[torch.Tensor, torch.Tensor],
                         batch_idx: int) \
             -> Dict[str, Any]:
-        x, y_labels, x_lens = val_batch
-        logits = self(x, x_lens)
+        x, y_labels = val_batch
+        logits = self(x)
         loss = F.cross_entropy(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
@@ -142,18 +151,14 @@ class LSTMClassifier(BaseModel):
         label = probs.argmax(dim=-1, keepdim=True)
         return label.data.numpy()
 
-    def _get_embeddings(self, sentence: str) -> torch.nn.utils.rnn.PackedSequence:
+    def _get_embeddings(self, sentence: str) -> List[torch.Tensor]:
         words = sentence.split()
         embeddings = [self._word_embedder[word] for word in words]
         embeddings = [torch.Tensor(embeddings)]
-
-        embeddings_pad = pad_sequence(embeddings, batch_first=True, padding_value=0)
-        embeddings_packed = pack_padded_sequence(embeddings_pad, [len(words)], batch_first=True,
-                                                 enforce_sorted=False)
-        return embeddings_packed
+        return embeddings
 
     def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
-        x, y_labels, x_lens = batch
-        logits = self(x, x_lens)
+        x, y_labels = batch
+        logits = self(x)
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
