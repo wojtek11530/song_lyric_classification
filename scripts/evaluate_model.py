@@ -15,17 +15,6 @@ from models.mlp.mlp_model import MLPClassifier
 _CLASS_NAMES = label_encoder.classes_
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_LSTM_MODEL_PATH = os.path.join(
-    _PROJECT_PATH, 'models', 'lstm',
-    'LSTM_input_200_drop_0.5_lay_num_1_lr_0.005_wd_0.005_max_words_200_rem_sw_True_v1.pt'
-)
-_MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp',
-                               'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_09-27-2020_13.54.38.pt')
-
-_CONV_MODEL_PATH = os.path.join(
-    _PROJECT_PATH, 'models', 'conv_net',
-    'ConvNet_embed_200_filters_num_32_kern_[3, 5, 7, 10, 15]_drop_0.5_lr_0.01_wd_0.001_max_words_256_rem_sw_False_09-29-2020_10.25.51.pt'
-)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -50,6 +39,23 @@ def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     plt.show()
 
 
+_MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp', 'saved_models',
+                               'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_09-27-2020_13.54.38.pt')
+
+
+def evaluate_mlp():
+    mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3,
+                              batch_size=64, removing_stop_words=True)
+    mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
+    evaluate_model(mlp_model)
+
+
+_LSTM_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'lstm', 'saved_models',
+    'LSTM_input_200_drop_0.5_lay_num_1_lr_0.005_wd_0.005_max_words_200_rem_sw_True_v1.pt'
+)
+
+
 def evaluate_lstm():
     lstm_model = LSTMClassifier(
         input_dim=200,
@@ -67,23 +73,22 @@ def evaluate_lstm():
     evaluate_model(lstm_model)
 
 
-def evaluate_mlp():
-    mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3,
-                              batch_size=64, removing_stop_words=True)
-    mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
-    evaluate_model(mlp_model)
+_CONV_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
+    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.5_lr_0.0001_wd_0.005_max_words_256_rem_sw_False_09-30-2020_11.10.57.pt'
+)
 
 
 def evaluate_conv_net():
     conv_model = ConvNetClassifier(
         embedding_dim=200,
         output_dim=4,
-        dropout=0.5,
-        batch_size=32,
-        learning_rate=1e-2,
-        weight_decay=1e-3,
-        filters_number=32,
-        kernels_sizes=[3, 5, 7, 10, 15],
+        dropout=0.3,
+        batch_size=128,
+        learning_rate=1e-4,
+        weight_decay=5e-3,
+        filters_number=128,
+        kernels_sizes=[5, 10, 15],
         max_num_words=256,
         removing_stop_words=False
     )

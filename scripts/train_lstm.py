@@ -28,7 +28,7 @@ def run_train_lstm():
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
         name=name,
-        save_dir=os.path.join(os.getcwd(), 'lightning_logs')
+        save_dir=os.path.join(os.getcwd(), 'lightning_logs', 'LSTM')
     )
 
     my_trainer = pl.Trainer(
@@ -40,7 +40,7 @@ def run_train_lstm():
     model = LSTMClassifier(**hp)
     my_trainer.fit(model)
     model_name = name + '_' + datetime.now().strftime('%m-%d-%Y_%H.%M.%S') + '.pt'
-    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'lstm', model_name)
+    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'lstm', 'saved_models', model_name)
     torch.save(model.state_dict(), model_path)
 
 

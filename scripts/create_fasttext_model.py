@@ -9,12 +9,12 @@ from nltk.tokenize import sent_tokenize
 from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-train_dataset_filepath = os.path.join(project_dir, 'datasets', 'train_dataset.csv')
-# train_dataset_filepath = os.path.join(project_dir, 'datasets', 'lyrics-data', 'lyrics-data.csv')
+# train_dataset_filepath = os.path.join(project_dir, 'datasets', 'train_dataset.csv')
+train_dataset_filepath = os.path.join(project_dir, 'datasets', 'lyrics-data', 'lyrics-data.csv')
 
 temp_lyrics_filename = 'lyrics.txt'
-model_filename = 'fasttext_model_200_stopwords_removed.bin'
-model_output = os.path.join(project_dir, 'models', 'word_embedding', model_filename)
+model_filename = 'fasttext_model_200_lemmatization.bin'
+model_output = os.path.join(project_dir, 'models', 'word_embedding', 'saved_models', model_filename)
 
 df = pd.read_csv(train_dataset_filepath, index_col=0)
 # df = df[df['Idiom'] == 'ENGLISH']
