@@ -6,7 +6,7 @@ import fasttext
 import pandas as pd
 from nltk.tokenize import sent_tokenize
 
-from preprocessing.text_preprocessor import preprocess, remove_stop_words
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 train_dataset_filepath = os.path.join(project_dir, 'datasets', 'train_dataset.csv')
@@ -22,6 +22,10 @@ df = pd.read_csv(train_dataset_filepath, index_col=0)
 
 lyrics_data = df.apply(
     lambda x: remove_stop_words(preprocess(x['lyrics'], remove_punctuation=True, remove_text_in_brackets=True)),
+    axis=1).values
+
+lyrics_data = df.apply(
+    lambda x: lemmatize_text(preprocess(x['lyrics'], remove_punctuation=True, remove_text_in_brackets=True)),
     axis=1).values
 
 # sentences = [re.sub(r'[^\w\s\']', '', sentence) for lyric in lyrics_data for sentence in sent_tokenize(lyric)]
