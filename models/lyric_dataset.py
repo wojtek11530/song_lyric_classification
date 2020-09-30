@@ -6,11 +6,11 @@ from torch.utils.data import Dataset
 
 from models.label_encoder import label_encoder
 from models.word_embedding.word_embedder import WordEmbedder
-from preprocessing.text_preprocessor import preprocess, remove_stop_words
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 
 class LyricsDataset(Dataset):
-    def __init__(self, filepath: str, removing_stop_words: bool = False):
+    def __init__(self, filepath: str, removing_stop_words: bool = False, lemmatization: bool = False):
         song_df = pd.read_csv(filepath, index_col=0)
         # song_df = song_df[song_df['dataset'] == 'MoodyLyrics4Q']
         song_df['lyrics'] = song_df.apply(
@@ -18,6 +18,8 @@ class LyricsDataset(Dataset):
             axis=1)
         if removing_stop_words:
             song_df['lyrics'] = song_df.apply(lambda x: remove_stop_words(x['lyrics']), axis=1)
+        if lemmatization:
+            song_df['lyrics'] = song_df.apply(lambda x: lemmatize_text(x['lyrics']), axis=1)
         song_df = song_df[song_df['lyrics'] != '']
 
         self.emotion_data = label_encoder.transform(song_df['emotion_4Q'])

@@ -1,7 +1,10 @@
 import re
 
 from nltk.corpus import stopwords
+from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
+
+wordnet_lemmatizer = WordNetLemmatizer()
 
 STOP_WORDS = set(stopwords.words('english'))
 NOT_USED_STOP_WORDS = {'more', 'aren', "mightn't", 'doesn', 'isn', "didn't", 'wouldn', "won't", 'ain', 'couldn',
@@ -31,3 +34,7 @@ def preprocess(text: str, remove_punctuation: bool, remove_text_in_brackets: boo
 
 def remove_stop_words(text: str) -> str:
     return ' '.join([word for word in word_tokenize(text) if word not in STOP_WORDS])
+
+
+def lemmatize_text(text: str) -> str:
+    return ' '.join([wordnet_lemmatizer.lemmatize(word) for word in word_tokenize(text)])
