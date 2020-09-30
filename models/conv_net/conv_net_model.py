@@ -44,10 +44,7 @@ class ConvNetClassifier(BaseModel):
                             kernel_size=kernel_size)
             for kernel_size in kernels_sizes
         ])
-
-        fc_1_output_dim = 64
-        self._fc_1 = torch.nn.Linear(filters_number * len(kernels_sizes), fc_1_output_dim)
-        self._fc_2 = torch.nn.Linear(fc_1_output_dim, output_dim)
+        self._fc = torch.nn.Linear(filters_number * len(kernels_sizes), output_dim)
         self._dropout = torch.nn.Dropout(p=dropout)
 
         self._learning_rate = learning_rate
@@ -81,9 +78,8 @@ class ConvNetClassifier(BaseModel):
 
         out = torch.cat(convolution_layers_outputs, 2)
         out = out.reshape(out.size()[0], -1)
-        out = F.relu(self._fc_1(out))
-        out = self._dropout(out)
-        out = self._fc_2(out)
+        # out = self._dropout(out)
+        out = self._fc(out)
         return out
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
