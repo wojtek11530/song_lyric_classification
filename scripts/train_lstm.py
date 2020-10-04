@@ -47,7 +47,8 @@ def run_train_lstm():
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
     name = 'LSTM_input_' + str(hp['input_dim']) + '_drop_' + str(hp['dropout']) + '_lay_num_' + \
            str(hp['layer_dim']) + '_lr_' + str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + \
-           '_max_words_' + str(hp['max_num_words']) + '_rem_sw_' + str(hp['removing_stop_words'])
+           '_max_words_' + str(hp['max_num_words']) + '_rem_sw_' + str(hp['removing_stop_words']) + \
+           '_lemm_' + str(hp['lemmatization'])
     if hp['bidirectional']:
         name = 'Bi' + name
     return name
