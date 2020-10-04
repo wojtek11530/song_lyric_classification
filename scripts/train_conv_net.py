@@ -14,12 +14,12 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 def run_train_conv_net():
     hp = {
-        'embedding_dim': 200,
+        'embedding_dim': 300,
         'output_dim': 4,
-        'dropout': 0.2,
+        'dropout': 0.0,
         'batch_size': 128,
         'learning_rate': 1e-4,
-        'weight_decay': 5e-3,
+        'weight_decay': 2e-2,
         'filters_number': 128,
         'kernels_sizes': [5, 10, 15, 25],
         'max_num_words': 256,

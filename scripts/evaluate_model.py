@@ -67,7 +67,8 @@ def evaluate_lstm():
         learning_rate=5e-3,
         weight_decay=5e-3,
         max_num_words=100,
-        removing_stop_words=True
+        removing_stop_words=True,
+        lemmatization=False
     )
     lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=device))
     evaluate_model(lstm_model)
@@ -75,22 +76,23 @@ def evaluate_lstm():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.5_lr_0.0001_wd_0.005_max_words_256_rem_sw_False_09-30-2020_11.10.57.pt'
+    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15, 25]_drop_0.0_lr_0.0001_wd_0.005_max_words_256_rem_sw_True_lemm_False_10-01-2020_09.47.13.pt'
 )
 
 
 def evaluate_conv_net():
     conv_model = ConvNetClassifier(
-        embedding_dim=200,
+        embedding_dim=300,
         output_dim=4,
-        dropout=0.3,
+        dropout=0.0,
         batch_size=128,
         learning_rate=1e-4,
         weight_decay=5e-3,
         filters_number=128,
-        kernels_sizes=[5, 10, 15],
+        kernels_sizes=[5, 10, 15, 25],
         max_num_words=256,
-        removing_stop_words=False
+        removing_stop_words=True,
+        lemmatization=False
     )
     conv_model.load_state_dict(torch.load(_CONV_MODEL_PATH, map_location=device))
     evaluate_model(conv_model)
