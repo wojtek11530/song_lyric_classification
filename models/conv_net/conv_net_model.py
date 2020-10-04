@@ -23,7 +23,7 @@ class ConvNetClassifier(BaseModel):
     def __init__(self, embedding_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
                  learning_rate: float = 1e-3, filters_number: int = 128, kernels_sizes: Optional[List[int]] = None,
                  weight_decay: float = 1e-5, max_num_words: int = 200,
-                 removing_stop_words: bool = False):
+                 removing_stop_words: bool = False, lemmatization: bool = False):
         super(ConvNetClassifier, self).__init__()
 
         if kernels_sizes is None:
@@ -37,6 +37,7 @@ class ConvNetClassifier(BaseModel):
         self._max_num_words = max_num_words
         self._word_embedder = WordEmbedder()
         self._removing_stop_words = removing_stop_words
+        self._lemmatization = lemmatization
 
         self._convs = torch.nn.ModuleList([
             torch.nn.Conv1d(in_channels=self._embedding_dim,
@@ -44,10 +45,7 @@ class ConvNetClassifier(BaseModel):
                             kernel_size=kernel_size)
             for kernel_size in kernels_sizes
         ])
-
-        fc_1_output_dim = 64
-        self._fc_1 = torch.nn.Linear(filters_number * len(kernels_sizes), fc_1_output_dim)
-        self._fc_2 = torch.nn.Linear(fc_1_output_dim, output_dim)
+        self._fc = torch.nn.Linear(filters_number * len(kernels_sizes), output_dim)
         self._dropout = torch.nn.Dropout(p=dropout)
 
         self._learning_rate = learning_rate
@@ -81,9 +79,8 @@ class ConvNetClassifier(BaseModel):
 
         out = torch.cat(convolution_layers_outputs, 2)
         out = out.reshape(out.size()[0], -1)
-        out = F.relu(self._fc_1(out))
-        out = self._dropout(out)
-        out = self._fc_2(out)
+        # out = self._dropout(out)
+        out = self._fc(out)
         return out
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
@@ -91,17 +88,23 @@ class ConvNetClassifier(BaseModel):
 
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
-            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH, self._removing_stop_words)
+            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH,
+                                            removing_stop_words=self._removing_stop_words,
+                                            lemmatization=self._lemmatization)
         return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=self.pad_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
-            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH, self._removing_stop_words)
+            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH,
+                                          removing_stop_words=self._removing_stop_words,
+                                          lemmatization=self._lemmatization)
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
-            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH, self._removing_stop_words)
+            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH,
+                                           removing_stop_words=self._removing_stop_words,
+                                           lemmatization=self._lemmatization)
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def training_step(self,
