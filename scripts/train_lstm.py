@@ -15,15 +15,17 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 def run_train_lstm():
     hp = {
         'input_dim': 200,
+        'hidden_dim': 200,
         'output_dim': 4,
-        'bidirectional': False,
-        'dropout': 0.5,
-        'batch_size': 32,
         'layer_dim': 1,
-        'learning_rate': 5e-3,
-        'weight_decay': 5e-3,
-        'max_num_words': 100,
-        'removing_stop_words': True
+        'bidirectional': False,
+        'dropout': 0.0,
+        'batch_size': 16,
+        'learning_rate': 1e-4,
+        'weight_decay': 1e-3,
+        'max_num_words': 200,
+        'removing_stop_words': True,
+        'lemmatization': False
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
@@ -45,10 +47,10 @@ def run_train_lstm():
 
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
-    name = 'LSTM_input_' + str(hp['input_dim']) + '_drop_' + str(hp['dropout']) + '_lay_num_' + \
-           str(hp['layer_dim']) + '_lr_' + str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + \
-           '_max_words_' + str(hp['max_num_words']) + '_rem_sw_' + str(hp['removing_stop_words']) + \
-           '_lemm_' + str(hp['lemmatization'])
+    name = 'LSTM_input_' + str(hp['input_dim']) + '_hidden_' + str(hp['hidden_dim']) + '_drop_' \
+           + str(hp['dropout']) + '_lay_num_' + str(hp['layer_dim']) + '_lr_' + str(hp['learning_rate']) \
+           + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + '_rem_sw_' \
+           + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization'])
     if hp['bidirectional']:
         name = 'Bi' + name
     return name

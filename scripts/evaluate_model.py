@@ -39,34 +39,37 @@ def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     plt.show()
 
 
-_MLP_MODEL_PATH = os.path.join(_PROJECT_PATH, 'models', 'mlp', 'saved_models',
-                               'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_09-27-2020_13.54.38.pt')
+_MLP_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'mlp', 'saved_models',
+    'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_False_lemm_False_10-04-2020_14.15.28.pt'
+)
 
 
 def evaluate_mlp():
     mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3,
-                              batch_size=64, removing_stop_words=True)
+                              batch_size=128, removing_stop_words=False, lemmatization=False)
     mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
     evaluate_model(mlp_model)
 
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'LSTM_input_200_drop_0.5_lay_num_1_lr_0.005_wd_0.005_max_words_200_rem_sw_True_v1.pt'
+    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_0.0001_wd_0.0001_max_words_200_rem_sw_True_lemm_False_10-04-2020_13.10.36.pt'
 )
 
 
 def evaluate_lstm():
     lstm_model = LSTMClassifier(
         input_dim=200,
+        hidden_dim=200,
         output_dim=4,
-        bidirectional=False,
-        dropout=0.5,
-        batch_size=32,
         layer_dim=1,
+        bidirectional=False,
+        dropout=0.0,
+        batch_size=16,
         learning_rate=5e-3,
         weight_decay=5e-3,
-        max_num_words=100,
+        max_num_words=200,
         removing_stop_words=True,
         lemmatization=False
     )
@@ -76,20 +79,20 @@ def evaluate_lstm():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15, 25]_drop_0.0_lr_0.0001_wd_0.005_max_words_256_rem_sw_True_lemm_False_10-01-2020_09.47.13.pt'
+    'ConvNet_embed_200_filters_num_128_kern_[5, 15]_drop_0.5_lr_0.0001_wd_0.005_max_words_256_rem_sw_True_lemm_False_10-04-2020_21.37.06.pt'
 )
 
 
 def evaluate_conv_net():
     conv_model = ConvNetClassifier(
-        embedding_dim=300,
+        embedding_dim=200,
         output_dim=4,
-        dropout=0.0,
+        dropout=0.5,
         batch_size=128,
         learning_rate=1e-4,
         weight_decay=5e-3,
         filters_number=128,
-        kernels_sizes=[5, 10, 15, 25],
+        kernels_sizes=[5, 15],
         max_num_words=256,
         removing_stop_words=True,
         lemmatization=False

@@ -13,7 +13,7 @@ from models.word_embedding.word_embedder import WordEmbedder
 _WORKERS_NUM = 1
 
 _PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-_TRAIN_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'train_dataset.csv')
+_TRAIN_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'train_aug_dataset.csv')
 _VAL_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'val_dataset.csv')
 _TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_dataset.csv')
 
@@ -45,6 +45,7 @@ class ConvNetClassifier(BaseModel):
                             kernel_size=kernel_size)
             for kernel_size in kernels_sizes
         ])
+
         self._fc = torch.nn.Linear(filters_number * len(kernels_sizes), output_dim)
         self._dropout = torch.nn.Dropout(p=dropout)
 
@@ -79,7 +80,7 @@ class ConvNetClassifier(BaseModel):
 
         out = torch.cat(convolution_layers_outputs, 2)
         out = out.reshape(out.size()[0], -1)
-        # out = self._dropout(out)
+        out = self._dropout(out)
         out = self._fc(out)
         return out
 

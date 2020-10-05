@@ -15,10 +15,10 @@ def run_train_mlp():
         'input_size': 200,
         'output_size': 4,
         'dropout': 0.5,
-        'batch_size': 128,
+        'batch_size': 32,
         'learning_rate': 1e-3,
         'weight_decay': 1e-5,
-        'removing_stop_words': True,
+        'removing_stop_words': False,
         'lemmatization': False
     }
     name = get_tensorboard_log_name(hp)
@@ -29,7 +29,7 @@ def run_train_mlp():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=100,
+        max_epochs=140,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )

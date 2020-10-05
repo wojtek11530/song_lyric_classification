@@ -14,7 +14,7 @@ TEMP_LYRICS_FILENAME = 'lyrics.txt'
 
 def run_creating_fasttext_model() -> None:
     create_fasttext_model(
-        dim=300,
+        dim=200,
         large_dataset=True,
         remove_stopwords=True,
         lemmatization=False,
