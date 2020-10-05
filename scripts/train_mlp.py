@@ -18,7 +18,7 @@ def run_train_mlp():
         'batch_size': 32,
         'learning_rate': 1e-3,
         'weight_decay': 1e-5,
-        'removing_stop_words': False,
+        'removing_stop_words': True,
         'lemmatization': False
     }
     name = get_tensorboard_log_name(hp)

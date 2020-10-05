@@ -21,7 +21,7 @@ def run_train_conv_net():
         'learning_rate': 1e-4,
         'weight_decay': 65e-4,
         'filters_number': 64,
-        'kernels_sizes': [5, 15],
+        'kernels_sizes': [5, 10, 15],
         'max_num_words': 256,
         'removing_stop_words': True,
         'lemmatization': False
@@ -34,7 +34,7 @@ def run_train_conv_net():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=80,
+        max_epochs=100,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )

@@ -79,7 +79,7 @@ def evaluate_lstm():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 15]_drop_0.5_lr_0.0001_wd_0.005_max_words_256_rem_sw_True_lemm_False_10-04-2020_21.37.06.pt'
+    'ConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.5_lr_0.0001_wd_0.0065_max_words_256_rem_sw_True_lemm_False_10-05-2020_14.09.03.pt'
 )
 
 
@@ -91,8 +91,8 @@ def evaluate_conv_net():
         batch_size=128,
         learning_rate=1e-4,
         weight_decay=5e-3,
-        filters_number=128,
-        kernels_sizes=[5, 15],
+        filters_number=64,
+        kernels_sizes=[5, 10, 15],
         max_num_words=256,
         removing_stop_words=True,
         lemmatization=False
