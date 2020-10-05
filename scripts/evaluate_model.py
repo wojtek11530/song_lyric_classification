@@ -8,6 +8,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 
 from models.base import BaseModel
 from models.conv_net.conv_net_model import ConvNetClassifier
+from models.gru.gru_model import GRUClassifier
 from models.label_encoder import label_encoder
 from models.lstm.lstm_model import LSTMClassifier
 from models.mlp.mlp_model import MLPClassifier
@@ -54,7 +55,7 @@ def evaluate_mlp():
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_0.0001_wd_0.0001_max_words_200_rem_sw_True_lemm_False_10-04-2020_13.10.36.pt'
+    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_0.0001_wd_0.001_max_words_200_rem_sw_True_lemm_False_10-05-2020_15.23.34.pt'
 )
 
 
@@ -75,6 +76,30 @@ def evaluate_lstm():
     )
     lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=device))
     evaluate_model(lstm_model)
+
+
+_GRU_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'gru', 'saved_models',
+    'GRU_input_200_hidden_200_drop_0.0_lay_num_1_lr_0.0001_wd_0.001_max_words_200_rem_sw_True_lemm_False_10-05-2020_15.03.23.pt'
+)
+
+
+def evaluate_gru():
+    gru_model = GRUClassifier(
+        input_dim=200,
+        hidden_dim=200,
+        output_dim=4,
+        layer_dim=1,
+        dropout=0.0,
+        batch_size=16,
+        learning_rate=5e-3,
+        weight_decay=5e-3,
+        max_num_words=200,
+        removing_stop_words=True,
+        lemmatization=False
+    )
+    gru_model.load_state_dict(torch.load(_GRU_MODEL_PATH, map_location=device))
+    evaluate_model(gru_model)
 
 
 _CONV_MODEL_PATH = os.path.join(
@@ -102,5 +127,6 @@ def evaluate_conv_net():
 
 
 # evaluate_mlp()
-# evaluate_lstm()
-evaluate_conv_net()
+evaluate_lstm()
+evaluate_gru()
+# evaluate_conv_net()
