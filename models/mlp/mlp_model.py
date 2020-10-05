@@ -10,7 +10,6 @@ from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
 
-# _DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 _WORKERS_NUM = 4
 
 _PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
