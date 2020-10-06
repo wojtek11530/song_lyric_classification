@@ -2,6 +2,7 @@ from typing import Tuple
 
 import numpy as np
 import pandas as pd
+from nltk.tokenize import word_tokenize
 from torch.utils.data import Dataset
 
 from models.label_encoder import label_encoder
@@ -33,7 +34,7 @@ class LyricsDataset(Dataset):
     def __len__(self) -> int:
         return len(self.emotion_data)
 
-    def _get_embeddings(self, sentence: str) -> np.ndarray:
-        words = sentence.split()
+    def _get_embeddings(self, text: str) -> np.ndarray:
+        words = word_tokenize(text)
         embedding = np.array([self.word_embedder[word] for word in words])
         return embedding
