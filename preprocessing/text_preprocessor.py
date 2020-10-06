@@ -1,5 +1,6 @@
 import re
 
+import contractions
 from nltk.corpus import stopwords
 from nltk.stem import WordNetLemmatizer
 from nltk.tokenize import word_tokenize
@@ -17,8 +18,11 @@ STOP_WORDS = STOP_WORDS - NOT_USED_STOP_WORDS
 _TEXT_WITHIN_BRACKETS_REGEX_PATTERN_ = r'[\(\[].*?[\)\]]'
 
 
-def preprocess(text: str, remove_punctuation: bool, remove_text_in_brackets: bool) -> str:
+def preprocess(text: str, remove_punctuation: bool, remove_text_in_brackets: bool, expand_contraction: bool = False) \
+        -> str:
     text = text.lower()
+    if expand_contraction:
+        text = contractions.fix(text)
     if remove_text_in_brackets:
         text = re.sub(_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_, "", text)
     if remove_punctuation:

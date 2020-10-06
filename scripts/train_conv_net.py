@@ -14,14 +14,14 @@ os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 def run_train_conv_net():
     hp = {
-        'embedding_dim': 300,
+        'embedding_dim': 200,
         'output_dim': 4,
-        'dropout': 0.0,
+        'dropout': 0.5,
         'batch_size': 128,
         'learning_rate': 1e-4,
-        'weight_decay': 2e-2,
-        'filters_number': 128,
-        'kernels_sizes': [5, 10, 15, 25],
+        'weight_decay': 65e-4,
+        'filters_number': 64,
+        'kernels_sizes': [5, 10, 15],
         'max_num_words': 256,
         'removing_stop_words': True,
         'lemmatization': False
@@ -34,8 +34,8 @@ def run_train_conv_net():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=50,
-        early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=3, verbose=True),
+        max_epochs=100,
+        early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
     model = ConvNetClassifier(**hp)
