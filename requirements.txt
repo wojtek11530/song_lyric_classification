@@ -10,6 +10,7 @@ tox
 pybind11
 gdown
 gensim
+contractions
 fasttext
 langdetect
 lyricsgenius

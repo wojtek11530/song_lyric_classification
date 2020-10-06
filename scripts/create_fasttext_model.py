@@ -4,9 +4,10 @@ import shutil
 
 import fasttext
 import pandas as pd
-# from nltk.tokenize import sent_tokenize
 
 from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
+
+# from nltk.tokenize import sent_tokenize
 
 PROJECT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 TEMP_LYRICS_FILENAME = 'lyrics.txt'
