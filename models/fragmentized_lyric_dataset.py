@@ -67,14 +67,3 @@ class FragmentizedLyricsDataset(Dataset):
         for index in sorted(index_to_delete, reverse=True):
             del lyrics_data[index]
             del emotion_labels[index]
-
-
-_PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-_TRAIN_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'train_dataset.csv')
-
-if __name__ == '__main__':
-    train_set = FragmentizedLyricsDataset(_TRAIN_DATASET_FILEPATH,
-                                          removing_stop_words=True,
-                                          lemmatization=False)
-
-    x, y = train_set[2]
