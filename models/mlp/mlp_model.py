@@ -3,12 +3,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from nltk import word_tokenize
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 _WORKERS_NUM = 4
 
@@ -125,21 +127,27 @@ class MLPClassifier(BaseModel):
         probs = torch.softmax(logits, dim=1)
         return int(probs.argmax(dim=1).eq(y_labels).sum().item())
 
-    def predict(self, sentence: str) -> np.ndarray:
-        avg_embedding = self._get_avg_embedding(sentence)
-        res = self(avg_embedding)
-        probs = torch.softmax(res, dim=-1)
-        label = probs.argmax(dim=-1, keepdim=True)
-        return label.data.numpy()
-
-    def _get_avg_embedding(self, sentence: str) -> torch.Tensor:
-        words = sentence.split()
-        embedding = np.array([self._word_embedder[word] for word in words])
-        avg_embedding = np.mean(embedding, axis=0)
-        return torch.from_numpy(avg_embedding)
-
     def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
         x, y_labels = batch
         logits = self(x)
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
+
+    def predict(self, lyrics: str) -> np.ndarray:
+        lyrics = preprocess(lyrics, remove_punctuation=True, remove_text_in_brackets=True)
+        if self._removing_stop_words:
+            lyrics = remove_stop_words(lyrics)
+        if self._lemmatization:
+            lyrics = lemmatize_text(lyrics)
+
+        avg_embedding = self._get_avg_embedding(lyrics)
+        res = self(avg_embedding)
+        probs = torch.softmax(res, dim=-1)
+        label = probs.argmax(dim=-1, keepdim=True)
+        return label.data.numpy()
+
+    def _get_avg_embedding(self, lyrics: str) -> torch.Tensor:
+        words = word_tokenize(lyrics)
+        embedding = np.array([self._word_embedder[word] for word in words])
+        avg_embedding = np.mean(embedding, axis=0)
+        return torch.from_numpy(avg_embedding)
