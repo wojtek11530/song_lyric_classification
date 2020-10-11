@@ -15,7 +15,7 @@ from models.mlp.mlp_model import MLPClassifier
 
 _CLASS_NAMES = label_encoder.classes_
 
-_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -126,7 +126,7 @@ def evaluate_conv_net():
     evaluate_model(conv_model)
 
 
-# evaluate_mlp()
+evaluate_mlp()
 evaluate_lstm()
 evaluate_gru()
-# evaluate_conv_net()
+evaluate_conv_net()
