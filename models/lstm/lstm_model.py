@@ -3,6 +3,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from nltk import word_tokenize
 from torch.nn import functional as F
 from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence, pad_sequence
 from torch.utils.data import DataLoader, Dataset
@@ -10,6 +11,7 @@ from torch.utils.data import DataLoader, Dataset
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 _WORKERS_NUM = 1
 
@@ -53,14 +55,19 @@ class LSTMClassifier(BaseModel):
     def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
             -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
         xx, yy = zip(*batch)
-        if self._max_num_words:
-            xx = [torch.Tensor(x[:self._max_num_words]) for x in xx]
-        else:
-            xx = [torch.Tensor(x) for x in xx]
+        xx_pad, xx_lens = self._get_padded_embeddings_and_lengths(xx)
         yy = torch.Tensor(yy).to(dtype=torch.int64)
-        xx_lens = [len(x) for x in xx]
-        xx_pad = pad_sequence(xx, batch_first=True, padding_value=0)
         return xx_pad, yy, xx_lens
+
+    def _get_padded_embeddings_and_lengths(self, xx: Tuple[np.ndarray]) \
+            -> Tuple[torch.Tensor, List[int]]:
+        if self._max_num_words:
+            xx_list = [torch.Tensor(x[:self._max_num_words]) for x in xx]
+        else:
+            xx_list = [torch.Tensor(x) for x in xx]
+        xx_lens = [len(x) for x in xx_list]
+        xx_pad = pad_sequence(xx_list, batch_first=True, padding_value=0)
+        return xx_pad, xx_lens
 
     def forward(self, x: torch.Tensor, x_lens: List[int]) -> torch.Tensor:
 
@@ -142,25 +149,29 @@ class LSTMClassifier(BaseModel):
         probs = torch.softmax(logits, dim=1)
         return int(probs.argmax(dim=1).eq(y_labels).sum().item())
 
-    def predict(self, sentence: str) -> np.ndarray:
-        embeddings = self._get_embeddings(sentence)
-        res = torch.squeeze(self(embeddings))
-        probs = torch.softmax(res, dim=-1)
-        label = probs.argmax(dim=-1, keepdim=True)
-        return label.data.numpy()
-
-    def _get_embeddings(self, sentence: str) -> torch.nn.utils.rnn.PackedSequence:
-        words = sentence.split()
-        embeddings = [self._word_embedder[word] for word in words]
-        embeddings = [torch.Tensor(embeddings)]
-
-        embeddings_pad = pad_sequence(embeddings, batch_first=True, padding_value=0)
-        embeddings_packed = pack_padded_sequence(embeddings_pad, [len(words)], batch_first=True,
-                                                 enforce_sorted=False)
-        return embeddings_packed
-
     def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
         x, y_labels, x_lens = batch
         logits = self(x, x_lens)
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
+
+    def predict(self, lyrics: str) -> np.ndarray:
+        lyrics = preprocess(lyrics, remove_punctuation=True, remove_text_in_brackets=True)
+        if self._removing_stop_words:
+            lyrics = remove_stop_words(lyrics)
+        if self._lemmatization:
+            lyrics = lemmatize_text(lyrics)
+
+        padded_embeddings, length = self._get_padded_embeddings_sequence_and_length(lyrics)
+        res = torch.squeeze(self(padded_embeddings, length))
+        probs = torch.softmax(res, dim=-1)
+        label = probs.argmax(dim=-1, keepdim=True)
+        return label.data.numpy()
+
+    def _get_padded_embeddings_sequence_and_length(self, lyrics: str) -> Tuple[torch.Tensor, List[int]]:
+        words = word_tokenize(lyrics)
+        embeddings = (np.array([self._word_embedder[word] for word in words]),)
+
+        xx_pad, xx_lens = self._get_padded_embeddings_and_lengths(embeddings)
+
+        return xx_pad, xx_lens
