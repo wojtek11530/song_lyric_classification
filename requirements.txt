@@ -12,6 +12,7 @@ gdown
 gensim
 contractions
 fasttext
+kaggle
 langdetect
 lyricsgenius
 matplotlib
