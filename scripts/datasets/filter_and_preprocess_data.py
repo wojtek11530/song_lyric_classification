@@ -4,7 +4,7 @@ import re
 import numpy as np
 import pandas as pd
 
-_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
 _DATA_FILE = 'dataset_with_lyrics.csv'
 

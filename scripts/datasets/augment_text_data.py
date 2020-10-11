@@ -5,7 +5,7 @@ import nlpaug.augmenter.word as naw
 import pandas as pd
 from tqdm import tqdm
 
-_PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_DIRECTORY, 'datasets')
 _TRAIN_DATASET_FILEPATH = os.path.join(_DATASET_PATH, 'train_dataset.csv')
 
