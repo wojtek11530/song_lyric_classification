@@ -3,12 +3,14 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from nltk import word_tokenize
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 _WORKERS_NUM = 1
 
@@ -56,25 +58,25 @@ class ConvNetClassifier(BaseModel):
     def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
             -> Tuple[torch.Tensor, torch.Tensor]:
         xx, yy = zip(*batch)
+        xx_pad = self._get_pad_embeddings_sequence(xx)
+        yy = torch.Tensor(yy).to(dtype=torch.int64)
+        return xx_pad, yy
 
+    def _get_pad_embeddings_sequence(self, xx: Tuple[np.ndarray]) -> torch.Tensor:
         x_lengths = [len(x) for x in xx]
         xx_pad = np.zeros((len(xx), self._max_num_words, self._embedding_dim))
-
         for i, x_len in enumerate(x_lengths):
             x = xx[i]
             limit = min(x_len, self._max_num_words)
             xx_pad[i, 0:limit] = x[:limit]
         xx_pad = torch.Tensor(xx_pad)
-        yy = torch.Tensor(yy).to(dtype=torch.int64)
-
-        return xx_pad, yy
+        return xx_pad
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = x.permute(0, 2, 1)
         convolution_layers_outputs = []
         for conv in self._convs:
             conv_out = F.relu(conv(x))
-            conv_out = conv_out.squeeze()
             conv_out = F.max_pool1d(conv_out, kernel_size=conv_out.size()[2])
             convolution_layers_outputs.append(conv_out)
 
@@ -148,21 +150,27 @@ class ConvNetClassifier(BaseModel):
         probs = torch.softmax(logits, dim=1)
         return int(probs.argmax(dim=1).eq(y_labels).sum().item())
 
-    def predict(self, sentence: str) -> np.ndarray:
-        embeddings = self._get_embeddings(sentence)
-        res = torch.squeeze(self(embeddings))
-        probs = torch.softmax(res, dim=-1)
-        label = probs.argmax(dim=-1, keepdim=True)
-        return label.data.numpy()
-
-    def _get_embeddings(self, sentence: str) -> List[torch.Tensor]:
-        words = sentence.split()
-        embeddings = [self._word_embedder[word] for word in words]
-        embeddings = [torch.Tensor(embeddings)]
-        return embeddings
-
     def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
         x, y_labels = batch
         logits = self(x)
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
+
+    def predict(self, lyrics: str) -> np.ndarray:
+        lyrics = preprocess(lyrics, remove_punctuation=True, remove_text_in_brackets=True)
+        if self._removing_stop_words:
+            lyrics = remove_stop_words(lyrics)
+        if self._lemmatization:
+            lyrics = lemmatize_text(lyrics)
+
+        embeddings = self._get_padded_embeddings_sequence(lyrics)
+        res = torch.squeeze(self(embeddings))
+        probs = torch.softmax(res, dim=-1)
+        label = probs.argmax(dim=-1, keepdim=True)
+        return label.data.numpy()
+
+    def _get_padded_embeddings_sequence(self, lyrics: str) -> torch.Tensor:
+        words = word_tokenize(lyrics)
+        embeddings = (np.array([self._word_embedder[word] for word in words]),)
+        embeddings_padded_sequence = self._get_pad_embeddings_sequence(embeddings)
+        return embeddings_padded_sequence
