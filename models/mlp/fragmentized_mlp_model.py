@@ -50,10 +50,8 @@ class FragmentizedMLPClassifier(BaseModel):
         self._lemmatization = lemmatization
 
     def forward(self, xx: List[torch.Tensor]) -> torch.Tensor:
-        # x = x.view(x.size(0), -1)
         out = []
         for x in xx:
-            # x = torch.Tensor(fragments_embeddings)
             x = x.float()
             # layer 1
             x = self._layer_1(x)
@@ -64,8 +62,7 @@ class FragmentizedMLPClassifier(BaseModel):
             x = torch.mean(x, dim=0, keepdim=True)
             out.append(x)
 
-        out = torch.cat(out, dim=0)
-        return out
+        return torch.cat(out, dim=0)
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
         return torch.optim.Adam(self.parameters(), self._learning_rate, weight_decay=self._weight_decay)

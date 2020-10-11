@@ -76,14 +76,13 @@ class FragmentizedLSTMClassifier(BaseModel):
 
             seq_len_indices = [length - 1 for length in x_lens]
             fragments_indices = [i for i in range(fragments_number)]
-            out = output_unpacked[fragments_indices, seq_len_indices, :]
-            self._dropout(out)
-            out = self._fc(out)
-            out = torch.mean(out, dim=0, keepdim=True)
-            output.append(out)
+            x_out = output_unpacked[fragments_indices, seq_len_indices, :]
+            self._dropout(x_out)
+            x_out = self._fc(x_out)
+            x_out = torch.mean(x_out, dim=0, keepdim=True)
+            output.append(x_out)
 
-        output = torch.cat(output, dim=0)
-        return output
+        return torch.cat(output, dim=0)
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
         return torch.optim.Adam(self.parameters(), lr=self._learning_rate, weight_decay=self._weight_decay)

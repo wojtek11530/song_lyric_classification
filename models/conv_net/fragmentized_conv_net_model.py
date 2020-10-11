@@ -73,7 +73,7 @@ class FragmentizedConvNetClassifier(BaseModel):
         return x_pad
 
     def forward(self, xx: List[torch.Tensor]) -> torch.Tensor:
-        out = []
+        output = []
         for x in xx:
             x = x.permute(0, 2, 1)
             convolution_layers_outputs = []
@@ -87,10 +87,9 @@ class FragmentizedConvNetClassifier(BaseModel):
             x_out = self._dropout(x_out)
             x_out = self._fc(x_out)
             x_out = torch.mean(x_out, dim=0, keepdim=True)
-            out.append(x_out)
+            output.append(x_out)
 
-        out = torch.cat(out, dim=0)
-        return out
+        return torch.cat(output, dim=0)
 
     def configure_optimizers(self) -> torch.optim.Optimizer:
         return torch.optim.Adam(self.parameters(), lr=self._learning_rate, weight_decay=self._weight_decay)
