@@ -10,7 +10,9 @@ tox
 pybind11
 gdown
 gensim
+contractions
 fasttext
+kaggle
 langdetect
 lyricsgenius
 matplotlib

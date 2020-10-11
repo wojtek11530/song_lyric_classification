@@ -11,7 +11,7 @@ _DATA_FILE = 'dataset_with_lyrics.csv'
 _LIMIT = 10000
 _LIMIT_WITHOUT_BRACKETS = 5500
 
-_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_ = r'[\(\[].*?[\)\]]'
+_TEXT_WITHIN_BRACKETS_REGEX_PATTERN = r'[\(\[].*?[\)\]]'
 
 _GENRE_MAPPER = {
     'Jazz': 'Jazz', 'Soul': 'Jazz', 'Swing': 'Jazz', 'Gospel': 'Jazz', 'Acid Jazz': 'Jazz',
@@ -60,14 +60,15 @@ _GENRE_MAPPER = {
 
 song_df = pd.read_csv(os.path.join(_DATASET_PATH, _DATA_FILE), index_col=0)
 
-index_to_drop = [22, 23, 114, 242, 392, 581, 765, 1141, 1144, 1245, 1273, 1342, 1377, 1426, 1822, 1500, 2099, 2309,
-                 2537, 2610, 2674, 3159, 3298, 3442]
+index_to_drop = [22, 23, 114, 242, 266, 382, 392, 581, 765, 920, 948, 1141, 1144, 1245, 1267, 1273, 1342, 1377, 1428,
+                 1426, 1822, 1500, 2099, 2309, 2537, 2610, 2674, 3159, 3389, 3298, 3442]
+
 song_df.drop(index_to_drop, inplace=True)
 
 song_df = song_df[song_df["lyrics"].str.len() < _LIMIT]
 
 for i in song_df.index:
-    if not re.search(_TEXT_WITHIN_BRACKETS_REGEX_PATTERN_, song_df.loc[i, "lyrics"]) and \
+    if not re.search(_TEXT_WITHIN_BRACKETS_REGEX_PATTERN, song_df.loc[i, "lyrics"]) and \
             len(song_df.loc[i, "lyrics"]) > _LIMIT_WITHOUT_BRACKETS:
         song_df.drop([i], inplace=True)
 
