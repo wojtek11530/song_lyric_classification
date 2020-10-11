@@ -7,12 +7,12 @@ import torch
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from models.lstm.fragmentized_lstm_model import FragmentizedLSTMClassifier
+from models.lstm.lstm_model import LSTMClassifier
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"
 
 
-def run_train_fragmentized_lstm():
+def run_train_lstm():
     hp = {
         'input_dim': 200,
         'hidden_dim': 200,
@@ -20,17 +20,17 @@ def run_train_fragmentized_lstm():
         'layer_dim': 1,
         'bidirectional': False,
         'dropout': 0.0,
-        'batch_size': 32,
-        'learning_rate': 1e-3,
-        'weight_decay': 5e-4,
-        'max_num_words': 70,
+        'batch_size': 16,
+        'learning_rate': 1e-4,
+        'weight_decay': 1e-3,
+        'max_num_words': 200,
         'removing_stop_words': True,
         'lemmatization': False
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
         name=name,
-        save_dir=os.path.join(os.getcwd(), 'lightning_logs', 'LSTM')
+        save_dir=os.path.join(os.getcwd(), '../lightning_logs', 'LSTM')
     )
 
     my_trainer = pl.Trainer(
@@ -39,10 +39,11 @@ def run_train_fragmentized_lstm():
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
-    model = FragmentizedLSTMClassifier(**hp)
+    model = LSTMClassifier(**hp)
     my_trainer.fit(model)
     model_name = name + '_' + datetime.now().strftime('%m-%d-%Y_%H.%M.%S') + '.pt'
-    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'lstm', 'saved_models', model_name)
+    project_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    model_path = os.path.join(project_directory, 'models', 'lstm', 'saved_models', model_name)
     torch.save(model.state_dict(), model_path)
 
 
@@ -53,9 +54,8 @@ def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
            + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization'])
     if hp['bidirectional']:
         name = 'Bi' + name
-    name = 'Frag' + name
     return name
 
 
 if __name__ == '__main__':
-    run_train_fragmentized_lstm()
+    run_train_lstm()
