@@ -9,12 +9,15 @@ from nltk.tokenize import word_tokenize
 wordnet_lemmatizer = WordNetLemmatizer()
 
 STOP_WORDS = set(stopwords.words('english'))
+
 NOT_USED_STOP_WORDS = {'more', 'aren', "mightn't", 'doesn', 'isn', "didn't", 'wouldn', "won't", 'ain', 'couldn',
                        "shouldn't", "weren't", 'didn', "hadn't", 'needn', 'shouldn', 'mustn', "mustn't", "wasn't",
                        "couldn't", 'wasn', "hasn't", 'very', 'most', 'hadn', "wouldn't", "don't", "aren't", 'hasn',
                        "needn't", "haven't", 'nor', 'no', 'won', 'not', 'haven', "isn't", 'don', "doesn't"}
 
-STOP_WORDS = STOP_WORDS - NOT_USED_STOP_WORDS
+ADDITIONAL_STOP_WORDS = {"'s", "'re", "'m", "'ve", "'d", "'ll"}
+
+STOP_WORDS = STOP_WORDS - NOT_USED_STOP_WORDS | ADDITIONAL_STOP_WORDS
 
 _TEXT_WITHIN_BRACKETS_REGEX_PATTERN = r'\[.*?\]'
 
@@ -40,7 +43,9 @@ def preprocess(text: str, remove_punctuation: bool, remove_text_in_brackets: boo
 
 
 def remove_stop_words(text: str) -> str:
-    return ' '.join([word for word in word_tokenize(text) if word not in STOP_WORDS])
+    text_without_stop_words = ' '.join([word for word in word_tokenize(text) if word not in STOP_WORDS])
+    text_without_stop_words = re.sub(r'\s+\'\s+', ' ', text_without_stop_words)
+    return text_without_stop_words
 
 
 def lemmatize_text(text: str) -> str:
