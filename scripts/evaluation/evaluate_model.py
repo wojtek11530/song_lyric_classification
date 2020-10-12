@@ -55,7 +55,7 @@ def evaluate_mlp():
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_0.0001_wd_0.001_max_words_200_rem_sw_True_lemm_False_10-05-2020_15.23.34.pt'
+    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_200_rem_sw_True_lemm_False_10-12-2020_18.53.52.pt'
 )
 
 
@@ -67,7 +67,7 @@ def evaluate_lstm():
         layer_dim=1,
         bidirectional=False,
         dropout=0.0,
-        batch_size=16,
+        batch_size=64,
         learning_rate=5e-3,
         weight_decay=5e-3,
         max_num_words=200,
@@ -104,7 +104,7 @@ def evaluate_gru():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.5_lr_0.0001_wd_0.0065_max_words_256_rem_sw_True_lemm_False_10-05-2020_14.09.03.pt'
+    'ConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.5_lr_0.0001_wd_0.0065_max_words_256_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -115,7 +115,7 @@ def evaluate_conv_net():
         dropout=0.5,
         batch_size=128,
         learning_rate=1e-4,
-        weight_decay=5e-3,
+        weight_decay=65e-4,
         filters_number=64,
         kernels_sizes=[5, 10, 15],
         max_num_words=256,
@@ -126,7 +126,7 @@ def evaluate_conv_net():
     evaluate_model(conv_model)
 
 
-evaluate_mlp()
+# evaluate_mlp()
 evaluate_lstm()
-evaluate_gru()
-evaluate_conv_net()
+# evaluate_gru()
+# evaluate_conv_net()
