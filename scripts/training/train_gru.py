@@ -19,9 +19,9 @@ def run_train_gru():
         'output_dim': 4,
         'layer_dim': 1,
         'dropout': 0.0,
-        'batch_size': 16,
-        'learning_rate': 1e-4,
-        'weight_decay': 1e-3,
+        'batch_size': 128,
+        'learning_rate': 9e-5,
+        'weight_decay': 1e-5,
         'max_num_words': 200,
         'removing_stop_words': True,
         'lemmatization': False
@@ -34,10 +34,11 @@ def run_train_gru():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=100,
+        max_epochs=60,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
+
     model = GRUClassifier(**hp)
     my_trainer.fit(model)
     model_name = name + '_' + datetime.now().strftime('%m-%d-%Y_%H.%M.%S') + '.pt'

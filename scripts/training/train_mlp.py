@@ -15,7 +15,7 @@ def run_train_mlp():
         'input_size': 200,
         'output_size': 4,
         'dropout': 0.5,
-        'batch_size': 32,
+        'batch_size': 128,
         'learning_rate': 1e-3,
         'weight_decay': 1e-5,
         'removing_stop_words': True,
