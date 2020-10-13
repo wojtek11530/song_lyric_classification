@@ -4,7 +4,7 @@ import re
 import numpy as np
 import pandas as pd
 
-_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
 
 _COLUMNS_IN_DF_ORDER = ['song_id_from_src',
@@ -55,9 +55,9 @@ def get_emomusic_data_frame() -> pd.DataFrame:
     df_songs['Artist'] = df_songs['Artist'].apply(lambda x: re.sub("\t", "", x))
     df_songs['Genre'] = df_songs['Genre'].apply(lambda x: re.sub("\t", "", x))
 
-    wmomusic_df = df_songs.merge(df_annotations, on='song_id')
-    wmomusic_df['dataset'] = emomusic_dataset_name
-    wmomusic_df = wmomusic_df.rename(columns={
+    emomusic_df = df_songs.merge(df_annotations, on='song_id')
+    emomusic_df['dataset'] = emomusic_dataset_name
+    emomusic_df = emomusic_df.rename(columns={
         'Song title': 'title',
         'Artist': 'artist',
         'Genre': 'genre',
@@ -68,17 +68,17 @@ def get_emomusic_data_frame() -> pd.DataFrame:
         'song_id': 'song_id_from_src'})
 
     # scaling arousal and valance values from interval [1, 9] into [0, 1]
-    wmomusic_df['arousal_mean'] = wmomusic_df.apply(lambda x: (x['arousal_mean'] - 1) / 8, axis=1)
-    wmomusic_df['arousal_std'] = wmomusic_df.apply(lambda x: x['arousal_std'] / 8, axis=1)
-    wmomusic_df['valence_mean'] = wmomusic_df.apply(lambda x: (x['valence_mean'] - 1) / 8, axis=1)
-    wmomusic_df['valence_std'] = wmomusic_df.apply(lambda x: x['valence_std'] / 8, axis=1)
+    emomusic_df['arousal_mean'] = emomusic_df.apply(lambda x: (x['arousal_mean'] - 1) / 8, axis=1)
+    emomusic_df['arousal_std'] = emomusic_df.apply(lambda x: x['arousal_std'] / 8, axis=1)
+    emomusic_df['valence_mean'] = emomusic_df.apply(lambda x: (x['valence_mean'] - 1) / 8, axis=1)
+    emomusic_df['valence_std'] = emomusic_df.apply(lambda x: x['valence_std'] / 8, axis=1)
 
-    wmomusic_df['emotion_4Q'] = wmomusic_df.apply(
+    emomusic_df['emotion_4Q'] = emomusic_df.apply(
         lambda row: assess_emotion_four_classes(row['arousal_mean'], row['valence_mean']),
         axis=1)
-    wmomusic_df['emotion_2Q'] = wmomusic_df.apply(lambda row: assess_emotion_two_classes(row['emotion_4Q']), axis=1)
-    wmomusic_df = wmomusic_df[_COLUMNS_IN_DF_ORDER]
-    return wmomusic_df
+    emomusic_df['emotion_2Q'] = emomusic_df.apply(lambda row: assess_emotion_two_classes(row['emotion_4Q']), axis=1)
+    emomusic_df = emomusic_df[_COLUMNS_IN_DF_ORDER]
+    return emomusic_df
 
 
 def get_moody_lyrics_data_frame() -> pd.DataFrame:

@@ -5,7 +5,7 @@ import zipfile
 import gdown
 import requests
 
-_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
 _SCRIPTS_DIRECTORY = os.path.join(_PROJECT_PATH, 'scripts')
 

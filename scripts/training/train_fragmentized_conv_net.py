@@ -29,7 +29,7 @@ def run_train_fragmentized_conv_net():
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
         name=name,
-        save_dir=os.path.join(os.getcwd(), 'lightning_logs', 'ConvNet')
+        save_dir=os.path.join(os.getcwd(), '../lightning_logs', 'ConvNet')
     )
 
     my_trainer = pl.Trainer(
@@ -41,8 +41,8 @@ def run_train_fragmentized_conv_net():
     model = FragmentizedConvNetClassifier(**hp)
     my_trainer.fit(model)
     model_name = name + '_' + datetime.now().strftime('%m-%d-%Y_%H.%M.%S') + '.pt'
-    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'conv_net', 'saved_models',
-                              model_name)
+    project_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    model_path = os.path.join(project_directory, 'models', 'conv_net', 'saved_models', model_name)
     torch.save(model.state_dict(), model_path)
 
 

@@ -10,7 +10,7 @@ import requests
 from langdetect import detect
 from requests.exceptions import HTTPError
 
-_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
 _DATA_FILE = 'merged_datasets.csv'
 _NEW_DATA_FILE_NAME = 'dataset_with_lyrics.csv'
@@ -38,7 +38,7 @@ def get_lyrics(df: pd.DataFrame) -> pd.DataFrame:
 
 def filter_language(df: pd.DataFrame, language_code: str) -> pd.DataFrame:
     df['language'] = np.nan
-    df['language'] = df.apply(lambda row: get_language(row['lyrics']), axis=1)
+    df['language'] = df['lyrics'].apply(lambda lyrics: get_language(lyrics))
     out_df = df[df['language'].isin([language_code]) & ~df['lyrics'].isnull()]
     return out_df
 

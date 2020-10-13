@@ -20,9 +20,9 @@ def run_train_lstm():
         'layer_dim': 1,
         'bidirectional': False,
         'dropout': 0.0,
-        'batch_size': 16,
-        'learning_rate': 1e-4,
-        'weight_decay': 1e-3,
+        'batch_size': 128,
+        'learning_rate': 9e-5,
+        'weight_decay': 1e-4,
         'max_num_words': 200,
         'removing_stop_words': True,
         'lemmatization': False
@@ -30,19 +30,21 @@ def run_train_lstm():
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
         name=name,
-        save_dir=os.path.join(os.getcwd(), 'lightning_logs', 'LSTM')
+        save_dir=os.path.join(os.getcwd(), '../lightning_logs', 'LSTM')
     )
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=100,
+        max_epochs=40,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
+
     model = LSTMClassifier(**hp)
     my_trainer.fit(model)
     model_name = name + '_' + datetime.now().strftime('%m-%d-%Y_%H.%M.%S') + '.pt'
-    model_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'models', 'lstm', 'saved_models', model_name)
+    project_directory = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    model_path = os.path.join(project_directory, 'models', 'lstm', 'saved_models', model_name)
     torch.save(model.state_dict(), model_path)
 
 

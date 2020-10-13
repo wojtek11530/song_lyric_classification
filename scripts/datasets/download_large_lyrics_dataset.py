@@ -2,7 +2,7 @@ import os
 
 import kaggle.api
 
-_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+_PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets', 'lyrics-data', )
 _KAGGLE_DATASET_NAME = 'neisse/scrapped-lyrics-from-6-genres'
 
