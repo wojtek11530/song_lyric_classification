@@ -9,6 +9,7 @@ from sklearn.metrics import classification_report, confusion_matrix
 from models.base import BaseModel
 from models.conv_net.conv_net_model import ConvNetClassifier
 from models.gru.gru_model import GRUClassifier
+from models.gru_cnn.gru_cnn_model import GRUCNNClassifier
 from models.label_encoder import label_encoder
 from models.lstm.lstm_model import LSTMClassifier
 from models.mlp.mlp_model import MLPClassifier
@@ -130,7 +131,36 @@ def evaluate_conv_net():
     evaluate_model(conv_model)
 
 
-evaluate_mlp()
-evaluate_lstm()
-evaluate_gru()
-evaluate_conv_net()
+_GRU_CNN_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'gru_cnn', 'saved_models',
+    'GRUCNN_input_200_drop_0.3_hidden_200_lay_num_1_filters_num_128_kern_[5, 10, 15]_lr_0.0002_wd_0.0005_max_words_200_rem_sw_True_lemm_False_10-17-2020_14.02.59.pt'
+)
+
+
+def evaluate_gru_cnn():
+    print('GRUCNN model')
+    conv_model = GRUCNNClassifier(
+        input_dim=200,
+        output_dim=4,
+        gru_hidden_dim=200,
+        gru_layer_dim=1,
+        filters_number=128,
+        kernels_sizes=[5, 10, 15],
+        dropout=0.4,
+        batch_size=128,
+        learning_rate=9e-5,
+        weight_decay=1e-5,
+        max_num_words=200,
+        removing_stop_words=True,
+        lemmatization=False
+    )
+    conv_model.load_state_dict(torch.load(_GRU_CNN_MODEL_PATH, map_location=device))
+    evaluate_model(conv_model)
+
+
+if __name__ == '__maine__':
+    # evaluate_mlp()
+    # evaluate_lstm()
+    # evaluate_gru()
+    evaluate_conv_net()
+    # evaluate_gru_cnn()
