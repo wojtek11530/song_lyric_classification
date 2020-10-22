@@ -59,7 +59,6 @@ class FragmentizedConvNetClassifier(BaseModel):
 
         xx_pad = [self._get_padded_fragmentized_x(x_fragments) for x_fragments in xx]
         yy = torch.Tensor(yy).to(dtype=torch.int64)
-
         return xx_pad, yy
 
     def _get_padded_fragmentized_x(self, x_fragments: np.ndarray) -> torch.Tensor:
@@ -86,8 +85,13 @@ class FragmentizedConvNetClassifier(BaseModel):
             x_out = x_out.reshape(x_out.size()[0], -1)
             x_out = self._dropout(x_out)
             x_out = self._fc(x_out)
-            x_out = torch.mean(x_out, dim=0, keepdim=True)
-            output.append(x_out)
+
+            softmax_out = F.softmax(x_out, dim=1)
+            mean_softmax = torch.mean(softmax_out, dim=0, keepdim=True)
+            log_mean_softmax = torch.log(mean_softmax)
+
+            # x_out = torch.mean(x_out, dim=0, keepdim=True)
+            output.append(log_mean_softmax)
 
         return torch.cat(output, dim=0)
 
@@ -120,7 +124,7 @@ class FragmentizedConvNetClassifier(BaseModel):
                       batch_idx: int) -> Dict[str, Any]:
         x, y_labels = batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'loss': loss, "correct": correct, "total": total, 'log': {'train_loss': loss}}
@@ -137,7 +141,7 @@ class FragmentizedConvNetClassifier(BaseModel):
             -> Dict[str, Any]:
         x, y_labels = val_batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'val_loss': loss, "correct": correct, "total": total}
