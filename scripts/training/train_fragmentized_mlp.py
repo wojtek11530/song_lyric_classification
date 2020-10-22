@@ -14,10 +14,10 @@ def run_train_fragmentized_mlp():
     hp = {
         'input_size': 200,
         'output_size': 4,
-        'dropout': 0.0,
-        'batch_size': 32,
-        'learning_rate': 3e-3,
-        'weight_decay': 75e-4,
+        'dropout': 0.5,
+        'batch_size': 128,
+        'learning_rate': 1e-3,
+        'weight_decay': 1e-4,
         'removing_stop_words': True,
         'lemmatization': False
     }
@@ -29,7 +29,7 @@ def run_train_fragmentized_mlp():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=140,
+        max_epochs=50,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
