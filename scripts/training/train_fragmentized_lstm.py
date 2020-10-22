@@ -21,9 +21,9 @@ def run_train_fragmentized_lstm():
         'bidirectional': False,
         'dropout': 0.0,
         'batch_size': 32,
-        'learning_rate': 1e-3,
-        'weight_decay': 5e-4,
-        'max_num_words': 70,
+        'learning_rate': 9e-5,
+        'weight_decay': 1e-4,
+        'max_num_words': 64,
         'removing_stop_words': True,
         'lemmatization': False
     }
@@ -35,7 +35,7 @@ def run_train_fragmentized_lstm():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=100,
+        max_epochs=20,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
@@ -48,7 +48,7 @@ def run_train_fragmentized_lstm():
 
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
-    name = 'LSTM_input_' + str(hp['input_dim']) + '_hidden_' + str(hp['hidden_dim']) + '_drop_' \
+    name = 'FragLSTM_input_' + str(hp['input_dim']) + '_hidden_' + str(hp['hidden_dim']) + '_drop_' \
            + str(hp['dropout']) + '_lay_num_' + str(hp['layer_dim']) + '_lr_' + str(hp['learning_rate']) \
            + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + '_rem_sw_' \
            + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization'])

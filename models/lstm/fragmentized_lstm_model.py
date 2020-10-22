@@ -79,8 +79,13 @@ class FragmentizedLSTMClassifier(BaseModel):
             x_out = output_unpacked[fragments_indices, seq_len_indices, :]
             self._dropout(x_out)
             x_out = self._fc(x_out)
-            x_out = torch.mean(x_out, dim=0, keepdim=True)
-            output.append(x_out)
+
+            softmax_out = F.softmax(x_out, dim=1)
+            mean_softmax = torch.mean(softmax_out, dim=0, keepdim=True)
+            log_mean_softmax = torch.log(mean_softmax)
+
+            # x_out = torch.mean(x_out, dim=0, keepdim=True)
+            output.append(log_mean_softmax)
 
         return torch.cat(output, dim=0)
 
@@ -113,7 +118,7 @@ class FragmentizedLSTMClassifier(BaseModel):
                       batch_idx: int) -> Dict[str, Any]:
         x, y_labels, x_lens = batch
         logits = self(x, x_lens)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'loss': loss, "correct": correct, "total": total, 'log': {'train_loss': loss}}
@@ -130,7 +135,7 @@ class FragmentizedLSTMClassifier(BaseModel):
             -> Dict[str, Any]:
         x, y_labels, x_lens = val_batch
         logits = self(x, x_lens)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'val_loss': loss, "correct": correct, "total": total}
