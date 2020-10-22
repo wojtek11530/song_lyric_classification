@@ -59,8 +59,13 @@ class FragmentizedMLPClassifier(BaseModel):
             x = self._dropout(x)
             # layer 2
             x = self._layer_2(x)
-            x = torch.mean(x, dim=0, keepdim=True)
-            out.append(x)
+
+            softmax_out = F.softmax(x, dim=1)
+            mean_softmax = torch.mean(softmax_out, dim=0, keepdim=True)
+            log_mean_softmax = torch.log(mean_softmax)
+
+            # x = torch.mean(x, dim=0, keepdim=True)
+            out.append(log_mean_softmax)
 
         return torch.cat(out, dim=0)
 
@@ -95,7 +100,7 @@ class FragmentizedMLPClassifier(BaseModel):
             -> Dict[str, Any]:
         x, y_labels = batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'loss': loss, "correct": correct, "total": total, 'log': {'train_loss': loss}}
@@ -112,7 +117,7 @@ class FragmentizedMLPClassifier(BaseModel):
             -> Dict[str, Any]:
         x, y_labels = val_batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'val_loss': loss, "correct": correct, "total": total}
