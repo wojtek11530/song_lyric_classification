@@ -17,7 +17,7 @@ def run_train_fragmentized_mlp():
         'dropout': 0.5,
         'batch_size': 128,
         'learning_rate': 1e-3,
-        'weight_decay': 1e-4,
+        'weight_decay': 1e-5,
         'removing_stop_words': True,
         'lemmatization': False
     }

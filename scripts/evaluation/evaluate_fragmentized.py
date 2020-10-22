@@ -12,7 +12,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 _MLP_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'mlp', 'saved_models',
-    'FragMLP_input_200_drop_0.5_lr_0.001_wd_0.0001_rem_sw_True_lemm_False.pt'
+    'FragMLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_True_lemm_False.pt'
 )
 
 

@@ -100,7 +100,7 @@ class FragmentizedMLPClassifier(BaseModel):
             -> Dict[str, Any]:
         x, y_labels = batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'loss': loss, "correct": correct, "total": total, 'log': {'train_loss': loss}}
@@ -117,7 +117,7 @@ class FragmentizedMLPClassifier(BaseModel):
             -> Dict[str, Any]:
         x, y_labels = val_batch
         logits = self(x)
-        loss = F.cross_entropy(logits, y_labels)
+        loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
         correct = self._get_correct_prediction_count(logits, y_labels)
         return {'val_loss': loss, "correct": correct, "total": total}
