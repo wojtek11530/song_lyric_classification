@@ -158,9 +158,9 @@ def evaluate_gru_cnn():
     evaluate_model(conv_model)
 
 
-if __name__ == '__maine__':
-    # evaluate_mlp()
+if __name__ == '__main__':
+    evaluate_mlp()
     # evaluate_lstm()
     # evaluate_gru()
-    evaluate_conv_net()
+    # evaluate_conv_net()
     # evaluate_gru_cnn()

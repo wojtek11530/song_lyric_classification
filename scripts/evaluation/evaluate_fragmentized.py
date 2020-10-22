@@ -3,20 +3,35 @@ import os
 import torch
 from models.conv_net.fragmentized_conv_net_model import FragmentizedConvNetClassifier
 from models.lstm.fragmentized_lstm_model import FragmentizedLSTMClassifier
+from models.mlp.fragmentized_mlp_model import FragmentizedMLPClassifier
 from scripts.evaluation.evaluate_model import evaluate_model
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
+_MLP_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'mlp', 'saved_models',
+    'FragMLP_input_200_drop_0.5_lr_0.001_wd_0.0001_rem_sw_True_lemm_False.pt'
+)
+
+
+def evaluate_fragmentized_mlp():
+    print('FragMLP model')
+    mlp_model = FragmentizedMLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3,
+                                          batch_size=128, removing_stop_words=True, lemmatization=False)
+    mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=device))
+    evaluate_model(mlp_model)
+
+
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'FragConvNet_embed_200_filters_num_32_kern_[5, 10, 15]_drop_0.4_lr_0.0005_wd_0.0003_max_words_64_rem_sw_True_lemm_False_10-21-2020_12.09.55.pt'
+    'FragConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.4_lr_0.0003_wd_0.0003_max_words_64_rem_sw_True_lemm_False_10-21-2020_12.49.59.pt'
 )
 
 
 def evaluate_fragmentized_conv_net():
-    print('ConvNet model')
+    print('FragConvNet model')
     conv_model = FragmentizedConvNetClassifier(
         embedding_dim=200,
         output_dim=4,
@@ -24,7 +39,7 @@ def evaluate_fragmentized_conv_net():
         batch_size=128,
         learning_rate=1e-4,
         weight_decay=65e-4,
-        filters_number=32,
+        filters_number=64,
         kernels_sizes=[5, 10, 15],
         max_num_words=64,
         removing_stop_words=True,
@@ -36,7 +51,7 @@ def evaluate_fragmentized_conv_net():
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'FragFragLSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_64_rem_sw_True_lemm_False_10-22-2020_11.21.29.pt'
+    'FragFragLSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_64_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -61,5 +76,6 @@ def evaluate_fragmentized_lstm():
 
 
 if __name__ == '__main__':
+    evaluate_fragmentized_mlp()
     # evaluate_fragmentized_conv_net()
-    evaluate_fragmentized_lstm()
+    # evaluate_fragmentized_lstm()

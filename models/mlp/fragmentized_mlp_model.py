@@ -59,8 +59,13 @@ class FragmentizedMLPClassifier(BaseModel):
             x = self._dropout(x)
             # layer 2
             x = self._layer_2(x)
-            x = torch.mean(x, dim=0, keepdim=True)
-            out.append(x)
+
+            softmax_out = F.softmax(x, dim=1)
+            mean_softmax = torch.mean(softmax_out, dim=0, keepdim=True)
+            log_mean_softmax = torch.log(mean_softmax)
+
+            # x = torch.mean(x, dim=0, keepdim=True)
+            out.append(log_mean_softmax)
 
         return torch.cat(out, dim=0)
 
