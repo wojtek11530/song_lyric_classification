@@ -13,6 +13,7 @@ gensim
 contractions
 fasttext
 kaggle
+imbalanced-learn
 langdetect
 lyricsgenius
 matplotlib
