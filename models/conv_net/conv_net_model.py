@@ -9,6 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
+from models.upsampled_sequence_embeding_dataset import UpsampledSequenceEmbeddingDataset
 from models.word_embedding.word_embedder import WordEmbedder
 from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
@@ -25,7 +26,7 @@ class ConvNetClassifier(BaseModel):
     def __init__(self, embedding_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
                  learning_rate: float = 1e-3, filters_number: int = 128, kernels_sizes: Optional[List[int]] = None,
                  weight_decay: float = 1e-5, max_num_words: int = 200,
-                 removing_stop_words: bool = False, lemmatization: bool = False):
+                 removing_stop_words: bool = False, lemmatization: bool = False, smote: bool = False):
         super(ConvNetClassifier, self).__init__()
 
         if kernels_sizes is None:
@@ -38,8 +39,10 @@ class ConvNetClassifier(BaseModel):
         self._embedding_dim = embedding_dim
         self._max_num_words = max_num_words
         self._word_embedder = WordEmbedder()
+
         self._removing_stop_words = removing_stop_words
         self._lemmatization = lemmatization
+        self._smote = smote
 
         self._convs = torch.nn.ModuleList([
             torch.nn.Conv1d(in_channels=self._embedding_dim,
@@ -91,10 +94,21 @@ class ConvNetClassifier(BaseModel):
 
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
-            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH,
-                                            removing_stop_words=self._removing_stop_words,
-                                            lemmatization=self._lemmatization)
-        return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=self.pad_collate)
+            if self._smote:
+                self._train_set = UpsampledSequenceEmbeddingDataset(
+                    _TRAIN_DATASET_FILEPATH,
+                    embedding_dim=self._embedding_dim,
+                    max_num_words=self._max_num_words,
+                    removing_stop_words=self._removing_stop_words,
+                    lemmatization=self._lemmatization
+                )
+                return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True, drop_last=False)
+            else:
+                self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH,
+                                                removing_stop_words=self._removing_stop_words,
+                                                lemmatization=self._lemmatization)
+                return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False,
+                                  collate_fn=self.pad_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
