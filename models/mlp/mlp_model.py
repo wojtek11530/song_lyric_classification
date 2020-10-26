@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
-from models.raw_avg_embedding_dataset import RawAverageEmbeddingDataset
+from models.upsampled_avg_embedding_dataset import UpsampledAverageEmbeddingDataset
 from models.word_embedding.word_embedder import WordEmbedder
 from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
@@ -17,7 +17,6 @@ _WORKERS_NUM = 4
 
 _PROJECT_DIRECTORY = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _TRAIN_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'train_dataset.csv')
-_TRAIN_SMOTE_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'SMOTE_avg_embedding_train_dataset.csv')
 _VAL_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'val_dataset.csv')
 _TEST_DATASET_FILEPATH = os.path.join(_PROJECT_DIRECTORY, 'datasets', 'test_dataset.csv')
 
@@ -47,9 +46,11 @@ class MLPClassifier(BaseModel):
 
         self._learning_rate = learning_rate
         self._batch_size = batch_size
+        self._weight_decay = weight_decay
+
+        self._input_size = input_size
         self._word_embedder = WordEmbedder()
 
-        self._weight_decay = weight_decay
         self._removing_stop_words = removing_stop_words
         self._lemmatization = lemmatization
         self._smote = smote
@@ -71,7 +72,10 @@ class MLPClassifier(BaseModel):
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
             if self._smote:
-                self._train_set = RawAverageEmbeddingDataset(_TRAIN_SMOTE_DATASET_FILEPATH)
+                self._train_set = UpsampledAverageEmbeddingDataset(_TRAIN_DATASET_FILEPATH,
+                                                                   embedding_dim=self._input_size,
+                                                                   removing_stop_words=self._removing_stop_words,
+                                                                   lemmatization=self._lemmatization)
                 return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True,
                                   drop_last=False)
             else:
