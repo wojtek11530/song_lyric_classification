@@ -159,8 +159,8 @@ def evaluate_gru_cnn():
 
 
 if __name__ == '__main__':
-    evaluate_mlp()
+    # evaluate_mlp()
     # evaluate_lstm()
     # evaluate_gru()
-    # evaluate_conv_net()
+    evaluate_conv_net()
     # evaluate_gru_cnn()
