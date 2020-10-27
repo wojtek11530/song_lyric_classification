@@ -57,8 +57,8 @@ class UpsampledSequenceEmbeddingDataset(Dataset):
         return song_df
 
     def _get_upsampled_data_with_smote(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        smote = SMOTE(random_state=_RANDOM_SEED)
-        X_upsampled, y_upsampled = smote.fit_sample(X, y.ravel())
+        smote = SMOTE(random_state=_RANDOM_SEED, k_neighbors=3)
+        X_upsampled, y_upsampled = smote.fit_resample(X, y.ravel())
         return X_upsampled, y_upsampled
 
     def _get_sequence_of_embeddings_array(self, df: pd.DataFrame) -> np.ndarray:
