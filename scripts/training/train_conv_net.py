@@ -16,16 +16,16 @@ def run_train_conv_net():
     hp = {
         'embedding_dim': 200,
         'output_dim': 4,
-        'dropout': 0.5,
+        'dropout': 0.4,
         'batch_size': 128,
-        'learning_rate': 5e-5,
-        'weight_decay': 1e-3,
+        'learning_rate': 1e-4,
+        'weight_decay': 3e-4,
         'filters_number': 128,
         'kernels_sizes': [5, 10, 15],
         'max_num_words': 256,
         'removing_stop_words': True,
         'lemmatization': False,
-        'smote': True
+        'smote': False
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(

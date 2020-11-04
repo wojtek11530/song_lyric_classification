@@ -30,7 +30,7 @@ def run_train_mlp():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=140,
+        max_epochs=50,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
