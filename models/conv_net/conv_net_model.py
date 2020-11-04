@@ -2,6 +2,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 from nltk import word_tokenize
 from torch.nn import functional as F
@@ -26,7 +27,8 @@ class ConvNetClassifier(BaseModel):
     def __init__(self, embedding_dim: int = 300, output_dim: int = 4, batch_size: int = 128, dropout: float = 0.3,
                  learning_rate: float = 1e-3, filters_number: int = 128, kernels_sizes: Optional[List[int]] = None,
                  weight_decay: float = 1e-5, max_num_words: int = 200,
-                 removing_stop_words: bool = False, lemmatization: bool = False, smote: bool = False):
+                 removing_stop_words: bool = False, lemmatization: bool = False, smote: bool = False,
+                 train_df: pd.DataFrame = None):
         super(ConvNetClassifier, self).__init__()
 
         if kernels_sizes is None:
@@ -43,6 +45,7 @@ class ConvNetClassifier(BaseModel):
         self._removing_stop_words = removing_stop_words
         self._lemmatization = lemmatization
         self._smote = smote
+        self._train_df = train_df
 
         self._convs = torch.nn.ModuleList([
             torch.nn.Conv1d(in_channels=self._embedding_dim,
@@ -102,26 +105,41 @@ class ConvNetClassifier(BaseModel):
                     removing_stop_words=self._removing_stop_words,
                     lemmatization=self._lemmatization
                 )
-                return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True, drop_last=False)
             else:
-                self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH,
-                                                removing_stop_words=self._removing_stop_words,
-                                                lemmatization=self._lemmatization)
-                return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False,
-                                  collate_fn=self.pad_collate)
+                if self._train_df is not None:
+                    self._train_set = LyricsDataset(
+                        self._train_df,
+                        removing_stop_words=self._removing_stop_words,
+                        lemmatization=self._lemmatization
+                    )
+                else:
+                    self._train_set = LyricsDataset.from_file(
+                        _TRAIN_DATASET_FILEPATH,
+                        removing_stop_words=self._removing_stop_words,
+                        lemmatization=self._lemmatization
+                    )
+
+        if self._smote:
+            return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, drop_last=False)
+        else:
+            return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=self.pad_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
-            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH,
-                                          removing_stop_words=self._removing_stop_words,
-                                          lemmatization=self._lemmatization)
+            self._val_set = LyricsDataset.from_file(
+                _VAL_DATASET_FILEPATH,
+                removing_stop_words=self._removing_stop_words,
+                lemmatization=self._lemmatization
+            )
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
-            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH,
-                                           removing_stop_words=self._removing_stop_words,
-                                           lemmatization=self._lemmatization)
+            self._test_set = LyricsDataset.from_file(
+                _TEST_DATASET_FILEPATH,
+                removing_stop_words=self._removing_stop_words,
+                lemmatization=self._lemmatization
+            )
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def training_step(self,

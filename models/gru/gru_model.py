@@ -2,6 +2,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 from nltk import word_tokenize
 from torch.nn import functional as F
@@ -26,7 +27,8 @@ class GRUClassifier(BaseModel):
     def __init__(self, input_dim: int = 300, learning_rate: float = 1e-3, hidden_dim: int = 100,
                  layer_dim: int = 1, output_dim: int = 4, batch_size: int = 128, weight_decay: float = 1e-5,
                  dropout: float = 0.3, max_num_words: Optional[int] = 200,
-                 removing_stop_words: bool = False, lemmatization: bool = False):
+                 removing_stop_words: bool = False, lemmatization: bool = False,
+                 train_df: pd.DataFrame = None):
         super(GRUClassifier, self).__init__()
 
         self._train_set: Optional[Dataset] = None
@@ -35,20 +37,20 @@ class GRUClassifier(BaseModel):
 
         self._hidden_dim = hidden_dim
         self._layer_dim = layer_dim
+        self._max_num_words = max_num_words
+        self._word_embedder = WordEmbedder()
+
+        self._removing_stop_words = removing_stop_words
+        self._lemmatization = lemmatization
+        self._train_df = train_df
 
         self._gru = torch.nn.GRU(input_dim, hidden_dim, layer_dim, batch_first=True, dropout=dropout)
         self._fc = torch.nn.Linear(self._hidden_dim, output_dim)
         self._dropout = torch.nn.Dropout(p=dropout)
 
-        self._learning_rate = learning_rate
-
         self._batch_size = batch_size
         self._weight_decay = weight_decay
-
-        self._max_num_words = max_num_words
-        self._word_embedder = WordEmbedder()
-        self._removing_stop_words = removing_stop_words
-        self._lemmatization = lemmatization
+        self._learning_rate = learning_rate
 
     def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
             -> Tuple[torch.Tensor, torch.Tensor, List[int]]:
@@ -68,7 +70,6 @@ class GRUClassifier(BaseModel):
         return xx_pad, xx_lens
 
     def forward(self, x: torch.Tensor, x_lens: List[int]) -> torch.Tensor:
-
         current_batch_size = len(x_lens)
 
         x_packed = pack_padded_sequence(x, x_lens, batch_first=True, enforce_sorted=False)
@@ -88,23 +89,36 @@ class GRUClassifier(BaseModel):
 
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
-            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH,
-                                            removing_stop_words=self._removing_stop_words,
-                                            lemmatization=self._lemmatization)
+            if self._train_df is not None:
+                self._train_set = LyricsDataset(
+                    self._train_df,
+                    removing_stop_words=self._removing_stop_words,
+                    lemmatization=self._lemmatization
+                )
+            else:
+                self._train_set = LyricsDataset.from_file(
+                    _TRAIN_DATASET_FILEPATH,
+                    removing_stop_words=self._removing_stop_words,
+                    lemmatization=self._lemmatization
+                )
         return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, collate_fn=self.pad_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
-            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH,
-                                          removing_stop_words=self._removing_stop_words,
-                                          lemmatization=self._lemmatization)
+            self._val_set = LyricsDataset.from_file(
+                _VAL_DATASET_FILEPATH,
+                removing_stop_words=self._removing_stop_words,
+                lemmatization=self._lemmatization
+            )
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
-            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH,
-                                           removing_stop_words=self._removing_stop_words,
-                                           lemmatization=self._lemmatization)
+            self._test_set = LyricsDataset.from_file(
+                _TEST_DATASET_FILEPATH,
+                removing_stop_words=self._removing_stop_words,
+                lemmatization=self._lemmatization
+            )
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False, collate_fn=self.pad_collate)
 
     def training_step(self,
