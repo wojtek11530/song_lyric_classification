@@ -4,10 +4,12 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Dict, List
 
+import matplotlib.patches as mpatches
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import pytorch_lightning as pl
+from matplotlib import cm
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 from sklearn.model_selection import train_test_split
@@ -165,6 +167,7 @@ def plot_results():
     with open(file_name, 'rb') as handle:
         training_data_dictionary = pkl.load(handle)
         _plot_average_results(training_data_dictionary)
+        _plot_boxplots(training_data_dictionary)
 
 
 def _plot_average_results(training_data_dictionary: Dict[str, Dict[float, List[Dict]]]):
@@ -188,6 +191,46 @@ def _plot_average_results(training_data_dictionary: Dict[str, Dict[float, List[D
     plt.grid(axis='y')
     plt.legend(loc=4)
     plt.ylabel('Średnia dokładność modelu (avg. accuracy)')
+    plt.xlabel('Użycie zbioru treningowego')
+    plt.tight_layout()
+    plt.show()
+
+
+def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]]):
+    first_key = list(training_data_dictionary.keys())[0]
+    ratios = list(training_data_dictionary[first_key].keys())
+    models_number = len(training_data_dictionary)
+
+    step = models_number * 0.9
+    basic_positions = np.arange(0, step * len(ratios), step)
+    if models_number % 2 == 0:
+        shift_rates = np.linspace(-0.15 * models_number, 0.15 * models_number, models_number)
+    else:
+        shift_rates = np.linspace(-0.15 * models_number, 0.15 * models_number, models_number)
+
+    cmap = cm.get_cmap('Pastel1').colors
+
+    legend_elements = []
+    for (model_name, ratios_dict), shift_rate, color in zip(training_data_dictionary.items(), shift_rates, cmap):
+        ratio_accuracies = []
+        ratio_f1_scores = []
+        for ratio, classification_reports_list in ratios_dict.items():
+            accuracies = [report['accuracy'] for report in classification_reports_list]
+            f1_scores = [report['macro avg']['f1-score'] for report in classification_reports_list]
+
+            ratio_accuracies.append(accuracies)
+            ratio_f1_scores.append(f1_scores)
+
+        boxplots = plt.boxplot(ratio_accuracies, positions=basic_positions + shift_rate, patch_artist=True)
+        plt.setp(boxplots['boxes'], facecolor=color)
+        legend_elements.append(mpatches.Patch(facecolor=color, edgecolor='k', label=model_name))
+
+    x_ticks_labels = ['{:.0%}'.format(x) for x in ratios]
+    plt.xticks(basic_positions, x_ticks_labels)
+    plt.legend(handles=legend_elements, loc='best')
+    plt.grid(axis='y')
+    # plt.ylim(bottom=0.5)
+    plt.ylabel('Dokładność modelu')
     plt.xlabel('Użycie zbioru treningowego')
     plt.tight_layout()
     plt.show()
