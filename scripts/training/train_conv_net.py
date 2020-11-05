@@ -24,7 +24,8 @@ def run_train_conv_net():
         'kernels_sizes': [5, 10, 15],
         'max_num_words': 256,
         'removing_stop_words': True,
-        'lemmatization': False
+        'lemmatization': False,
+        'smote': False
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
@@ -34,7 +35,7 @@ def run_train_conv_net():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=50,
+        max_epochs=80,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
@@ -50,7 +51,8 @@ def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
     name = 'ConvNet_embed_' + str(hp['embedding_dim']) + '_filters_num_' + str(hp['filters_number']) + \
            '_kern_' + str(hp['kernels_sizes']) + '_drop_' + str(hp['dropout']) + '_lr_' + \
            str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + \
-           '_rem_sw_' + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization'])
+           '_rem_sw_' + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization']) + \
+           '_smote_' + str(hp['smote'])
     return name
 
 

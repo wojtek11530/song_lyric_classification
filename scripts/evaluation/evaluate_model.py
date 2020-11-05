@@ -1,4 +1,5 @@
 import os
+from typing import Dict
 
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -31,6 +32,12 @@ def evaluate_model(base_model: BaseModel) -> None:
     show_confusion_matrix(df_cm)
 
 
+def get_classification_report_for_evaluation(base_model: BaseModel) -> Dict:
+    y_pred, y_test = base_model.test_model()
+    report = classification_report(y_test, y_pred, target_names=_CLASS_NAMES, output_dict=True)
+    return report
+
+
 def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     hmap = sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues")
     hmap.yaxis.set_ticklabels(hmap.yaxis.get_ticklabels(), rotation=0, ha='right')
@@ -57,7 +64,7 @@ def evaluate_mlp():
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_200_rem_sw_True_lemm_False_10-12-2020_18.53.52.pt'
+    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_200_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -108,7 +115,7 @@ def evaluate_gru():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_256_rem_sw_True_lemm_False.pt'
+    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_256_rem_sw_True_lemm_False_smote_False_11-04-2020_10.53.30.pt'
 )
 
 
@@ -159,8 +166,8 @@ def evaluate_gru_cnn():
 
 
 if __name__ == '__main__':
-    evaluate_mlp()
-    # evaluate_lstm()
+    # evaluate_mlp()
+    evaluate_lstm()
     # evaluate_gru()
     # evaluate_conv_net()
     # evaluate_gru_cnn()

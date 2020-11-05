@@ -19,7 +19,8 @@ def run_train_mlp():
         'learning_rate': 1e-3,
         'weight_decay': 1e-5,
         'removing_stop_words': True,
-        'lemmatization': False
+        'lemmatization': False,
+        'smote': False
     }
     name = get_tensorboard_log_name(hp)
     logger = TensorBoardLogger(
@@ -29,7 +30,7 @@ def run_train_mlp():
 
     my_trainer = pl.Trainer(
         logger=logger,
-        max_epochs=140,
+        max_epochs=50,
         early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
         gpus=1
     )
@@ -45,7 +46,7 @@ def run_train_mlp():
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
     name = 'MLP_input_' + str(hp['input_size']) + '_drop_' + str(hp['dropout']) + '_lr_' + \
            str(hp['learning_rate']) + '_wd_' + str(hp['weight_decay']) + '_rem_sw_' \
-           + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization'])
+           + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization']) + '_smote_' + str(hp['smote'])
     return name
 
 

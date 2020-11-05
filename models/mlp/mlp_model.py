@@ -2,6 +2,7 @@ import os
 from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
+import pandas as pd
 import torch
 from nltk import word_tokenize
 from torch.nn import functional as F
@@ -9,6 +10,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
+from models.upsampled_avg_embedding_dataset import UpsampledAverageEmbeddingDataset
 from models.word_embedding.word_embedder import WordEmbedder
 from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
@@ -30,7 +32,8 @@ def avg_embedding_collate(batch: List[Tuple[np.ndarray, int]]) -> Tuple[torch.Te
 class MLPClassifier(BaseModel):
     def __init__(self, input_size: int = 100, output_size: int = 4,
                  learning_rate: float = 1e-3, weight_decay: float = 1e-5, dropout: float = 0.5, batch_size: int = 128,
-                 removing_stop_words: bool = False, lemmatization: bool = False):
+                 removing_stop_words: bool = False, lemmatization: bool = False,
+                 smote: bool = False, train_df: pd.DataFrame = None):
         super(MLPClassifier, self).__init__()
 
         self._train_set: Optional[Dataset] = None
@@ -44,11 +47,15 @@ class MLPClassifier(BaseModel):
 
         self._learning_rate = learning_rate
         self._batch_size = batch_size
+        self._weight_decay = weight_decay
+
+        self._input_size = input_size
         self._word_embedder = WordEmbedder()
 
-        self._weight_decay = weight_decay
         self._removing_stop_words = removing_stop_words
         self._lemmatization = lemmatization
+        self._smote = smote
+        self._train_df = train_df
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x = x.view(x.size(0), -1)
@@ -66,25 +73,50 @@ class MLPClassifier(BaseModel):
 
     def train_dataloader(self) -> DataLoader:
         if self._train_set is None:
-            self._train_set = LyricsDataset(_TRAIN_DATASET_FILEPATH,
-                                            removing_stop_words=self._removing_stop_words,
-                                            lemmatization=self._lemmatization)
-        return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=True,
-                          drop_last=False, collate_fn=avg_embedding_collate)
+            if self._smote:
+                self._train_set = UpsampledAverageEmbeddingDataset(
+                    _TRAIN_DATASET_FILEPATH,
+                    embedding_dim=self._input_size,
+                    removing_stop_words=self._removing_stop_words,
+                    lemmatization=self._lemmatization
+                )
+            else:
+                if self._train_df is not None:
+                    self._train_set = LyricsDataset(
+                        self._train_df,
+                        removing_stop_words=self._removing_stop_words,
+                        lemmatization=self._lemmatization
+                    )
+                else:
+                    self._train_set = LyricsDataset.from_file(
+                        _TRAIN_DATASET_FILEPATH,
+                        removing_stop_words=self._removing_stop_words,
+                        lemmatization=self._lemmatization
+                    )
+
+        if self._smote:
+            return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, drop_last=False)
+        else:
+            return DataLoader(self._train_set, batch_size=self._batch_size, shuffle=False, drop_last=False,
+                              collate_fn=avg_embedding_collate)
 
     def val_dataloader(self) -> DataLoader:
         if self._val_set is None:
-            self._val_set = LyricsDataset(_VAL_DATASET_FILEPATH,
-                                          removing_stop_words=self._removing_stop_words,
-                                          lemmatization=self._lemmatization)
+            self._val_set = LyricsDataset.from_file(
+                _VAL_DATASET_FILEPATH,
+                removing_stop_words=self._removing_stop_words,
+                lemmatization=self._lemmatization
+            )
         return DataLoader(self._val_set, batch_size=self._batch_size, drop_last=False,
                           collate_fn=avg_embedding_collate)
 
     def test_dataloader(self) -> DataLoader:
         if self._test_set is None:
-            self._test_set = LyricsDataset(_TEST_DATASET_FILEPATH,
-                                           removing_stop_words=self._removing_stop_words,
-                                           lemmatization=self._lemmatization)
+            self._test_set = LyricsDataset.from_file(
+                _TEST_DATASET_FILEPATH,
+                removing_stop_words=self._removing_stop_words,
+                lemmatization=self._lemmatization
+            )
         return DataLoader(self._test_set, batch_size=self._batch_size, drop_last=False,
                           collate_fn=avg_embedding_collate)
 

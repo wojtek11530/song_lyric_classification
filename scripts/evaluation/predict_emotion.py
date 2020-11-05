@@ -32,7 +32,7 @@ _MLP_MODEL_PATH = os.path.join(
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_200_rem_sw_True_lemm_False_10-12-2020_18.53.52.pt'
+    'LSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_200_rem_sw_True_lemm_False.pt'
 )
 
 _GRU_MODEL_PATH = os.path.join(

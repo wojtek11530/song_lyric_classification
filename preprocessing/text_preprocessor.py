@@ -10,37 +10,12 @@ wordnet_lemmatizer = WordNetLemmatizer()
 
 STOP_WORDS = set(stopwords.words('english'))
 
-# s = {'up', 'have', 'd', "hadn't", "isn't", "weren't", 'yourselves', 'which', 'hadn', 'more', 'should', 'that', 'my',
-#      'from', 'so', 'them', 'too', 'will', 'here', "you'd", 'ain', 'doing', 'of', 'but', 'same', 'yourself', 'now',
-#      'ourselves', 'the', 'theirs', 'our', 'who', 'few', 'or', "don't", 'there', 'very', "wasn't", "didn't", 'won',
-#      'hasn', 'm', 'am', 'isn', "you've", 'mustn', "mightn't", 'because', 'ours', "you'll", 'both', 'i', "aren't", 'it',
-#      'yours', 'out', 'whom', "should've", "couldn't", 'shan', "she's", 'each', 'is', 's', 'don', 'into', 'an', 'then',
-#      'below', 'itself', 'when', 'down', "haven't", "needn't", 'can', "mustn't", "wouldn't", 'been', 'about', 't',
-#      'your', 'doesn', "that'll", 'some', 'o', 'its', 'again', 'her', "hasn't", 'to', 'not', 're', "shouldn't", 'how',
-#      'they', 'was', 'such', 'she', 'and', 'off', 'by', 'while', 'on', 'themselves', 'were', 'after', "won't", 'against',
-#      've', 'this', 'do', 'having', 'only', 'own', 'we', 'those', 'you', 'their', 'has', 'as', 'for', 'weren', 'himself',
-#      'had', 'if', 'why', 'nor', 'before', 'll', 'over', 'herself', 'mightn', 'most', 'under', 'once', 'at', 'above',
-#      "doesn't", 'ma', 'being', 'during', 'wasn', 'he', 'through', 'no', 'just', 'than', 'hers', 'are', 'his', 'what',
-#      'with', 'in', 'further', 'shouldn', "it's", 'wouldn', 'aren', 'all', 'needn', "shan't", 'any', 'a', 'couldn',
-#      "you're", 'him', 'y', 'until', 'didn', 'myself', 'did', 'where', 'me', 'be', 'these', 'haven', 'other', 'does',
-#      'between'}
-
 NOT_USED_STOP_WORDS = {'more', 'aren', "mightn't", 'doesn', 'isn', "didn't", 'wouldn', "won't", 'ain', 'couldn',
                        "shouldn't", "weren't", 'didn', "hadn't", 'needn', 'shouldn', 'mustn', "mustn't", "wasn't",
                        "couldn't", 'wasn', "hasn't", 'very', 'most', 'hadn', "wouldn't", "don't", "aren't", 'hasn',
                        "needn't", "haven't", 'nor', 'no', 'won', 'not', 'haven', "isn't", 'don', "doesn't"}
 
 ADDITIONAL_STOP_WORDS = {"'s", "'re", "'m", "'ve", "'d", "'ll"}
-#
-#
-# NOT_USED_STOP_WORDS = {'more', 'aren', "mightn't", 'doesn', 'isn', "didn't", 'wouldn', "won't", 'ain', 'couldn',
-#                        "shouldn't", "weren't", 'didn', "hadn't", 'needn', 'shouldn', 'mustn', "mustn't", "wasn't",
-#                        "couldn't", 'wasn', "hasn't", 'very', 'most', 'hadn', "wouldn't", "don't", "aren't", 'hasn',
-#                        "needn't", "haven't", 'nor', 'no', 'won', 'not', 'haven', "isn't", 'don', "doesn't",
-#                        'i', 'you', 'she', 'he', 'it', 'we', 'they', 'my', 'your', 'her', 'his', 'their', 'yours',
-#                        'hers', 'theirs'}
-#
-# ADDITIONAL_STOP_WORDS = {"'s", "'re", "'m", "'ve", "'d", "'ll", 'ca', 'could', 'wo', 'ai'}
 
 STOP_WORDS = STOP_WORDS - NOT_USED_STOP_WORDS | ADDITIONAL_STOP_WORDS
 
