@@ -9,7 +9,7 @@ from torch.utils.data import Dataset
 
 from models.label_encoder import label_encoder
 from models.word_embedding.word_embedder import WordEmbedder
-from preprocessing.text_preprocessor import preprocess, remove_stop_words, lemmatize_text
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 _RANDOM_SEED = 42
 

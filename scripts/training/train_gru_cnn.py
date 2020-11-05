@@ -7,7 +7,6 @@ import torch
 from pytorch_lightning.callbacks import EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 
-from models.gru.gru_model import GRUClassifier
 from models.gru_cnn.gru_cnn_model import GRUCNNClassifier
 
 os.environ['CUDA_LAUNCH_BLOCKING'] = "1"

@@ -7,7 +7,7 @@ from imblearn.over_sampling import SMOTE
 from nltk import word_tokenize
 
 from models.word_embedding.word_embedder import WordEmbedder
-from preprocessing.text_preprocessor import preprocess, remove_stop_words, lemmatize_text
+from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
