@@ -136,7 +136,7 @@ def _train_lstm(df: pd.DataFrame, ratio: float) -> LSTMClassifier:
         'lemmatization': False,
         'train_df': df
     }
-    name = f'MLP_ratio={ratio}'
+    name = f'LSTM_ratio={ratio}'
     logger = _get_tensor_board_logger(name)
     trainer = _get_trainer(logger, max_epochs=80)
     model = LSTMClassifier(**hp)
@@ -206,7 +206,7 @@ def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]])
     if models_number % 2 == 0:
         shift_rates = np.linspace(-0.15 * models_number, 0.15 * models_number, models_number)
     else:
-        shift_rates = np.linspace(-0.15 * models_number, 0.15 * models_number, models_number)
+        shift_rates = np.linspace(-0.25 * models_number, 0.25 * models_number, models_number)
 
     cmap = cm.get_cmap('Pastel1').colors
 
@@ -237,8 +237,8 @@ def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]])
 
 
 def merge_results():
-    file_name_1 = 'size_of_training_dataset_analysis_results_11-04-2020_17.18.pkl'
-    file_name_2 = 'size_of_training_dataset_analysis_results_11-05-2020_11.00.pkl'
+    file_name_1 = 'size_of_training_dataset_analysis_results_11-05-2020_11.53.pkl'
+    file_name_2 = 'size_of_training_dataset_analysis_results_11-05-2020_18.01.pkl'
     with open(file_name_1, 'rb') as handle_1, open(file_name_2, 'rb') as handle_2:
         training_data_dictionary_1 = pkl.load(handle_1)
         training_data_dictionary_2 = pkl.load(handle_2)

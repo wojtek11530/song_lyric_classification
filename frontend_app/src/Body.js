@@ -22,7 +22,7 @@ export default function Body() {
 
   return (
     <Container maxWidth="lg" className={classes.root}>
-        <Grid container spacing={3}>
+        <Grid container spacing={8}>
             <Grid item md={6} xs={12}>
                 <LeftComponent />
             </Grid>

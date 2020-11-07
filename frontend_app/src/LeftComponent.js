@@ -4,17 +4,23 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 
 const useStyles = makeStyles(theme => ({
-  title: {
+  container: {
     flexGrow: 1,
     textAlign: 'center',
+    padding: theme.spacing(8, 0, 8)
   },
 }));
 
 const LeftComponent = () => {
     const classes = useStyles();
     return(
-      <Container>
-            <TextField id="outlined-basic" label="Outlined" variant="outlined" />
+      <Container className={classes.container}>
+           <TextField
+              multiline
+              rows={25}
+              fullWidth
+              variant="outlined"
+            />
       </Container>
     )
 }
