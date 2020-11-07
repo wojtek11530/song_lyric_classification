@@ -4,10 +4,13 @@ import Paper from '@material-ui/core/Paper';
 import Grid from '@material-ui/core/Grid';
 import Container from '@material-ui/core/Container';
 import LeftComponent from './LeftComponent';
+import RightComponent from './RightComponent';
 
 const useStyles = makeStyles((theme) => ({
-  root: {
+  bodyContainer: {
     flexGrow: 1,
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
   },
   paper: {
     padding: theme.spacing(2),
@@ -21,13 +24,13 @@ export default function Body() {
   const classes = useStyles();
 
   return (
-    <Container maxWidth="lg" className={classes.root}>
-        <Grid container spacing={8}>
-            <Grid item md={6} xs={12}>
+    <Container maxWidth="lg" className={classes.bodyContainer}>
+        <Grid container spacing={1}>
+            <Grid item md={6} sm={7} xs={12}>
                 <LeftComponent />
             </Grid>
-            <Grid item md={6} xs={12}>
-                <Paper className={classes.paper}>xs=6</Paper>
+            <Grid item md={6} sm={5} xs={12}>
+                 <RightComponent />
             </Grid>
         </Grid>
     </Container>

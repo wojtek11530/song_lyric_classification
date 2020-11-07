@@ -9,7 +9,9 @@ class App extends Component {
       <>
         <CssBaseline />
         <NavBar />
+        <main>
         <Body />
+        </main>
       </>
     )
   }
