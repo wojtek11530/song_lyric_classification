@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Container from '@material-ui/core/Container';
+import { Context } from "./Context.js";
 import NavBar from './NavBar';
 import Body from './Body';
 import Footer from './Footer';
@@ -20,15 +21,24 @@ const useStyles = makeStyles(theme => ({
 
 const App = () => {
     const classes = useStyles();
+    const [lyrics, setLyrics] = useState('');
+    const [results, setResults] = useState([]);
+    const [lyricsError, setLyricsError] = useState(false);
+    const contextValues = { lyrics: [lyrics, setLyrics],
+                            results: [results, setResults],
+                            lyricsError: [lyricsError, setLyricsError]}
+
     return (
-      <div className={classes.app}>
-        <CssBaseline />
-        <NavBar />
-        <main className={classes.main}>
-        <Body />
-        </main>
-        < Footer/>
-      </ div>
+        <Context.Provider value={contextValues}>
+          <div className={classes.app}>
+            <CssBaseline />
+            <NavBar />
+            <main className={classes.main}>
+            <Body />
+            </main>
+            < Footer/>
+          </ div>
+        </ Context.Provider>
     )
 }
 export default App

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { TextField } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Typography from '@material-ui/core/Typography'
+import { Context } from "./Context";
+import { FormHelperText } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -13,8 +15,12 @@ const useStyles = makeStyles(theme => ({
     paddingRight: theme.spacing(0)
   },
 
-  textField: {
-    backgroundColor: "white"
+  helperText: {
+    fontSize: '1.25rem',
+  },
+
+  input: {
+    backgroundColor: 'white ',
   },
 
   header: {
@@ -26,7 +32,7 @@ const useStyles = makeStyles(theme => ({
 
 const LeftComponent = () => {
     const classes = useStyles();
-    const divider = 20;
+    const divider = 21;
     const minRow = 12;
     const calcRows = () => {
         return Math.max(minRow, Math.round((window.innerHeight-200) / divider));
@@ -37,20 +43,32 @@ const LeftComponent = () => {
        function handleResize() {
             setRows(calcRows())
         }
-
         window.addEventListener('resize', handleResize)
     });
+
+    const { lyrics, results, lyricsError } = useContext(Context);
+    const [stateLyrics, setLyrics] = lyrics;
+    const [stateLyricsError, setLyricsError] = lyricsError;
 
     return(
       <Container className={classes.container}>
             <Typography variant="h6" className={classes.header}>
                 {"Lyrics of song"}
             </Typography>
-           <TextField className={classes.textField}
+           <TextField
+              InputProps={{
+                 className: classes.input,
+              }}
+              FormHelperTextProps={{
+                 className: classes.helperText,
+              }}
               multiline
               rows={rows}
               fullWidth
               variant="outlined"
+              error={stateLyricsError}
+              helperText={stateLyricsError ? 'Empty field!' : ''}
+              onChange={(event) => setLyrics(event.target.value)}
             />
       </Container>
     )
