@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import ResultChart from './ResultChart';
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -23,8 +24,12 @@ const useStyles = makeStyles(theme => ({
   },
 
   paper: {
-    backgroundColor: '#cfe8fc',
-    height: '40vh',
+    backgroundColor: 'white',
+    padding: theme.spacing(1),
+    display: 'flex',
+    overflow: 'auto',
+    flexDirection: 'column',
+    height: 280,
     margin: theme.spacing(1, 1, 1, 1),
     [theme.breakpoints.up('sm')]: {
       margin: theme.spacing(4, 2, 1, 2),
@@ -33,8 +38,6 @@ const useStyles = makeStyles(theme => ({
       margin: theme.spacing(4, 4, 1, 4),
     },
   }
-
-
 }));
 
 const RightComponent = () => {
@@ -44,7 +47,9 @@ const RightComponent = () => {
             <Button size="large"  variant="contained"  color="primary" disableElevation className={classes.button}>
                 Get Mood!
             </Button>
-            <Paper className={classes.paper}/>
+            <Paper className={classes.paper}>
+                <ResultChart />
+            </Paper>
       </Container>
     )
 }

@@ -10,13 +10,7 @@ const useStyles = makeStyles((theme) => ({
     flexGrow: 1,
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
-  },
-  paper: {
-    padding: theme.spacing(2),
-    textAlign: 'center',
-    color: theme.palette.text.secondary,
-    height: '80vh'
-  },
+  }
 }));
 
 export default function Body() {
@@ -25,10 +19,10 @@ export default function Body() {
   return (
     <Container maxWidth="lg" className={classes.bodyContainer}>
         <Grid container spacing={1}>
-            <Grid item md={6} sm={7} xs={12}>
+            <Grid item sm={6} xs={12}>
                 <LeftComponent />
             </Grid>
-            <Grid item md={6} sm={5} xs={12}>
+            <Grid item sm={6} xs={12}>
                  <RightComponent />
             </Grid>
         </Grid>

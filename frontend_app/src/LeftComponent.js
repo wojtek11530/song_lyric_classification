@@ -24,18 +24,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-//const MyComponent = ({ location, ...otherProps }) => (whatever you want to render)
-
 const LeftComponent = () => {
     const classes = useStyles();
     const divider = 20;
     const minRow = 12;
-
     const calcRows = () => {
         return Math.max(minRow, Math.round((window.innerHeight-200) / divider));
     }
     const [rows, setRows] = useState(calcRows());
-
 
     useEffect(() => {
        function handleResize() {
