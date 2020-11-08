@@ -12,6 +12,7 @@ gdown
 gensim
 contractions
 fasttext
+flask
 kaggle
 imbalanced-learn
 langdetect
