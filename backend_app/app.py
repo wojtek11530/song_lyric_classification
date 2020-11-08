@@ -1,12 +1,14 @@
 from typing import Dict
 
 from flask import Flask, abort, jsonify, request
+from flask_cors import CORS
 
 from backend_app.used_model import get_model
 from models.label_encoder import label_encoder
 
 app = Flask(__name__)
 app.config["DEBUG"] = False
+CORS(app)
 
 _CLASS_NAMES = label_encoder.classes_
 
@@ -27,7 +29,7 @@ def get_song_emotion():
 
     emotion_probabilities = _get_emotion_probabilities(lyrics)
 
-    return jsonify(emotion_probabilities), 201
+    return jsonify(emotion_probabilities), 200
 
 
 def _get_emotion_probabilities(lyrics: str) -> Dict[str, float]:

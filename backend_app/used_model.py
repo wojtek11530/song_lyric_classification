@@ -35,4 +35,5 @@ def _get_cnn_model() -> ConvNetClassifier:
         lemmatization=False
     )
     conv_model.load_state_dict(torch.load(_CONV_MODEL_PATH, map_location=_DEVICE))
+    conv_model.eval()
     return conv_model
