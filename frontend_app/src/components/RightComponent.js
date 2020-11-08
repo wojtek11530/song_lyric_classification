@@ -21,6 +21,7 @@ const useStyles = makeStyles(theme => ({
       margin: theme.spacing(10, 1, 1, 1),
     },
     fontSize: '1.7rem',
+    fontWeight: 400,
     textTransform: 'none'
   },
 

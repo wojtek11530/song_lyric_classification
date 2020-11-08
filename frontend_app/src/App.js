@@ -5,7 +5,20 @@ import NavBar from './components/NavBar';
 import Body from './components/Body';
 import Footer from './components/Footer';
 import { makeStyles } from '@material-ui/core/styles';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { createMuiTheme }  from '@material-ui/core/styles'
 
+
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+        main: '#084887',
+    },
+    secondary: {
+        main: '#F9AB55'
+    },
+  },
+});
 
 const useStyles = makeStyles(theme => ({
   main: {
@@ -20,24 +33,29 @@ const useStyles = makeStyles(theme => ({
 
 const App = () => {
     const classes = useStyles();
+
     const [lyrics, setLyrics] = useState('');
     const [results, setResults] = useState([]);
     const [lyricsError, setLyricsError] = useState(false);
-    const contextValues = { lyrics: [lyrics, setLyrics],
-                            results: [results, setResults],
-                            lyricsError: [lyricsError, setLyricsError]}
+    const contextValues = {
+        lyrics: [lyrics, setLyrics],
+        results: [results, setResults],
+        lyricsError: [lyricsError, setLyricsError]
+    };
 
     return (
-        <Context.Provider value={contextValues}>
-          <div className={classes.app}>
-            <CssBaseline />
-            <NavBar />
-            <main className={classes.main}>
-            <Body />
-            </main>
-            < Footer/>
-          </ div>
-        </ Context.Provider>
+        <ThemeProvider theme={theme}>
+            <Context.Provider value={contextValues}>
+              <div className={classes.app}>
+                <CssBaseline />
+                <NavBar />
+                <main className={classes.main}>
+                <Body />
+                </main>
+                < Footer/>
+              </ div>
+            </ Context.Provider>
+        </ ThemeProvider>
     )
 }
 export default App
