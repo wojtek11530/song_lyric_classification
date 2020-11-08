@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import Container from '@material-ui/core/Container';
 import { Context } from "./Context.js";
 import NavBar from './NavBar';
 import Body from './Body';

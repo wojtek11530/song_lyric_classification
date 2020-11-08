@@ -13,6 +13,7 @@ gensim
 contractions
 fasttext
 flask
+flask-cors
 kaggle
 imbalanced-learn
 langdetect

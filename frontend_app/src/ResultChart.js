@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useTheme } from '@material-ui/core/styles';
-import { BarChart, Bar, XAxis, YAxis, Label, LabelList, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, LabelList, ResponsiveContainer } from 'recharts';
 import Typography from '@material-ui/core/Typography'
 import { Context } from "./Context";
 
