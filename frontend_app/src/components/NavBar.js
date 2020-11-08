@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
 
   title: {
     textAlign: 'center',
-    fontFamily: 'Rambla'
+    fontFamily: 'Rambla, sans-serif'
   },
 }));
 
