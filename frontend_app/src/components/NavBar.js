@@ -17,7 +17,7 @@ const NavBar = () => {
         <AppBar position="relative">
             <Toolbar>
                 <Typography variant="h5" className={classes.title}>
-                    Lyrics Mood
+                    Lyrics Emotions
                 </Typography>
             </Toolbar>
         </AppBar>

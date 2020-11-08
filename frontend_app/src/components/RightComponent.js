@@ -5,7 +5,7 @@ import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import ResultChart from './ResultChart';
-import { Context } from "./Context";
+import { Context } from "../Context";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -100,7 +100,7 @@ const RightComponent = () => {
       <Container className={classes.container}>
             <Button size="large"  variant="contained"  color="primary" disableElevation className={classes.button}
                 disabled={buttonDisabled} onClick={onButtonClick}>
-                Get Mood!
+                Get Emotions!
             </Button>
             { showResults ?
             <Paper className={classes.paper}>
