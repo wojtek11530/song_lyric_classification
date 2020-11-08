@@ -24,8 +24,9 @@ const useStyles = makeStyles(theme => ({
 
   header: {
     flexGrow: 1,
-    padding: theme.spacing(1, 1, 0),
+    padding: theme.spacing(1, 1.3, 0),
     textAlign: 'left',
+    fontStyle: 'italic'
   }
 }));
 
@@ -51,7 +52,7 @@ const LeftComponent = () => {
 
     return(
       <Container className={classes.container}>
-            <Typography variant="h6" className={classes.header}>
+            <Typography variant="h5" className={classes.header}>
                 {"Lyrics of song"}
             </Typography>
            <TextField
