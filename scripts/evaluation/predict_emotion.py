@@ -66,7 +66,7 @@ def perform_prediction():
 
 
 def predict_emotion(model: BaseModel, lyrics: str) -> str:
-    encoded_label = model.predict(lyrics)
+    encoded_label, probs = model.predict(lyrics)
     label = label_encoder.inverse_transform(encoded_label)
     return label[0]
 

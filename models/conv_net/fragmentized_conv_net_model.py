@@ -159,12 +159,12 @@ class FragmentizedConvNetClassifier(BaseModel):
         probs = torch.softmax(logits, dim=1)
         return int(probs.argmax(dim=1).eq(y_labels).sum().item())
 
-    def predict(self, sentence: str) -> np.ndarray:
+    def predict(self, sentence: str) -> Tuple[np.ndarray, np.ndarray]:
         embeddings = self._get_embeddings(sentence)
         res = torch.squeeze(self(embeddings))
         probs = torch.softmax(res, dim=-1)
         label = probs.argmax(dim=-1, keepdim=True)
-        return label.data.numpy()
+        return label.data.numpy(), probs.data.numpy()
 
     def _get_embeddings(self, sentence: str) -> List[torch.Tensor]:
         words = sentence.split()

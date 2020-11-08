@@ -165,7 +165,7 @@ class MLPClassifier(BaseModel):
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
 
-    def predict(self, lyrics: str) -> np.ndarray:
+    def predict(self, lyrics: str) -> Tuple[np.ndarray, np.ndarray]:
         lyrics = preprocess(lyrics, remove_punctuation=True, remove_text_in_brackets=True)
         if self._removing_stop_words:
             lyrics = remove_stop_words(lyrics)
@@ -176,7 +176,7 @@ class MLPClassifier(BaseModel):
         res = self(avg_embedding)
         probs = torch.softmax(res, dim=-1)
         label = probs.argmax(dim=-1, keepdim=True)
-        return label.data.numpy()
+        return label.data.numpy(), probs.data.numpy()
 
     def _get_avg_embedding(self, lyrics: str) -> torch.Tensor:
         words = word_tokenize(lyrics)
