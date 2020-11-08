@@ -27,10 +27,7 @@ const useStyles = makeStyles(theme => ({
   paper: {
     backgroundColor: 'white',
     padding: theme.spacing(1),
-    display: 'flex',
-    overflow: 'auto',
-    flexDirection: 'column',
-    height: 280,
+    height: 350,
     margin: theme.spacing(1, 1, 1, 1),
     [theme.breakpoints.up('sm')]: {
       margin: theme.spacing(4, 2, 1, 2),
