@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { useTheme } from '@material-ui/core/styles';
-import { BarChart, Bar, XAxis, YAxis, Label, LabelList, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, LabelList, ResponsiveContainer } from 'recharts';
 import Typography from '@material-ui/core/Typography'
-import { Context } from "./Context";
+import { Context } from "../Context";
 
 
 export default function ResultChart() {
@@ -17,7 +17,7 @@ export default function ResultChart() {
   return (
     <React.Fragment>
     <Typography component="h2" variant="h6" color="primary" gutterBottom>
-        Mood Probabilities
+        Emotions Probabilities
     </Typography>
     <ResponsiveContainer>
         <BarChart data={stateResults} margin={{top: 20, right: 8, bottom: 0, left: 0}}>

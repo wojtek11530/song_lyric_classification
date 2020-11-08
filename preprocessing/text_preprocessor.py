@@ -37,6 +37,7 @@ def preprocess(text: str, remove_punctuation: bool, remove_text_in_brackets: boo
         else:
             re.sub(r'[^\w\s\'\[(\])]', '', text)
     text = re.sub(r'\d', '', text)
+    text = re.sub(r'\n', ' ', text)
     text = re.sub(r'\s+', ' ', text)
     text = text.strip()
     return text

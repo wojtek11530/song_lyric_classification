@@ -66,7 +66,7 @@ def perform_prediction():
 
 
 def predict_emotion(model: BaseModel, lyrics: str) -> str:
-    encoded_label = model.predict(lyrics)
+    encoded_label, probs = model.predict(lyrics)
     label = label_encoder.inverse_transform(encoded_label)
     return label[0]
 
@@ -75,6 +75,7 @@ def get_mlp_model() -> MLPClassifier:
     mlp_model = MLPClassifier(input_size=200, output_size=4, dropout=0.5, weight_decay=5e-3,
                               batch_size=128, removing_stop_words=True, lemmatization=False)
     mlp_model.load_state_dict(torch.load(_MLP_MODEL_PATH, map_location=_DEVICE))
+    mlp_model.eval()
     return mlp_model
 
 
@@ -94,6 +95,7 @@ def get_lstm_model() -> LSTMClassifier:
         lemmatization=False
     )
     lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=_DEVICE))
+    lstm_model.eval()
     return lstm_model
 
 
@@ -112,6 +114,7 @@ def get_gru_model() -> GRUClassifier:
         lemmatization=False
     )
     gru_model.load_state_dict(torch.load(_GRU_MODEL_PATH, map_location=_DEVICE))
+    gru_model.eval()
     return gru_model
 
 
@@ -130,6 +133,7 @@ def get_cnn_model() -> ConvNetClassifier:
         lemmatization=False
     )
     conv_model.load_state_dict(torch.load(_CONV_MODEL_PATH, map_location=_DEVICE))
+    conv_model.eval()
     return conv_model
 
 

@@ -1,11 +1,11 @@
-import React, {useState, useContext} from 'react'
-import { TextField } from '@material-ui/core';
+import React, {useState, useContext} from 'react';
+import axios from 'axios';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
 import ResultChart from './ResultChart';
-import { Context } from "./Context";
+import { Context } from "../Context";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -61,19 +61,37 @@ const RightComponent = () => {
     const [stateResults, setResults] = results;
     const [stateLyricsError, setLyricsError] = lyricsError;
 
+    const [rawResults, setRawResults] = useState(null);
     const [showResults, setShowResults] = useState(false);
-
     const [buttonDisabled, setButtonDisabled] = useState(false);
+
+    const fetchEmotionResults = () => {
+        console.log('fetchEmotionResults');
+        axios
+            .post('http://localhost:5000/song_emotion',
+                {lyrics: stateLyrics})
+            .then(response => {
+                    let formattedData = [];
+                    for (const property in response.data) {
+                       formattedData.push(createData(property, response.data[property]));
+                    }
+                    console.log(formattedData);
+                    console.log(data);
+                    setResults(formattedData);
+                    setShowResults(true);
+              })
+            .catch(error => console.log(error));
+    }
+
 
     const onButtonClick =  () => {
         setButtonDisabled(true);
-        if (stateLyrics == '') {
+        if (stateLyrics === '') {
             setShowResults(false);
             setLyricsError(true);
         } else {
             setLyricsError(false);
-            setResults(data);
-            setShowResults(true);
+            fetchEmotionResults();
         }
         setButtonDisabled(false);
     }
@@ -82,7 +100,7 @@ const RightComponent = () => {
       <Container className={classes.container}>
             <Button size="large"  variant="contained"  color="primary" disableElevation className={classes.button}
                 disabled={buttonDisabled} onClick={onButtonClick}>
-                Get Mood!
+                Get Emotions!
             </Button>
             { showResults ?
             <Paper className={classes.paper}>

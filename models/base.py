@@ -9,7 +9,7 @@ import torch
 
 class BaseModel(pl.LightningModule):
     @abstractmethod
-    def predict(self, lyrics: str) -> np.ndarray:
+    def predict(self, lyrics: str) -> Tuple[np.ndarray, np.ndarray]:
         pass
 
     def test_model(self) -> Tuple[torch.Tensor, torch.Tensor]:
