@@ -163,7 +163,7 @@ def _get_trainer(logger: TensorBoardLogger, max_epochs: int) -> pl.Trainer:
 
 
 def plot_results():
-    file_name = 'size_of_training_dataset_analysis_results_11-05-2020_11.53.pkl'
+    file_name = 'size_of_training_dataset_analysis_results.pkl'
     with open(file_name, 'rb') as handle:
         training_data_dictionary = pkl.load(handle)
         _plot_average_results(training_data_dictionary)
@@ -227,7 +227,7 @@ def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]])
 
     x_ticks_labels = ['{:.0%}'.format(x) for x in ratios]
     plt.xticks(basic_positions, x_ticks_labels)
-    plt.legend(handles=legend_elements, loc='best')
+    plt.legend(handles=legend_elements, loc=4)
     plt.grid(axis='y')
     # plt.ylim(bottom=0.5)
     plt.ylabel('Dokładność modelu')
@@ -236,21 +236,6 @@ def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]])
     plt.show()
 
 
-def merge_results():
-    file_name_1 = 'size_of_training_dataset_analysis_results_11-05-2020_11.53.pkl'
-    file_name_2 = 'size_of_training_dataset_analysis_results_11-05-2020_18.01.pkl'
-    with open(file_name_1, 'rb') as handle_1, open(file_name_2, 'rb') as handle_2:
-        training_data_dictionary_1 = pkl.load(handle_1)
-        training_data_dictionary_2 = pkl.load(handle_2)
-        data_dictionary = dict(training_data_dictionary_1)
-        data_dictionary.update(training_data_dictionary_2)
-
-        file_name = f'size_of_training_dataset_analysis_results_{datetime.now().strftime("%m-%d-%Y_%H.%M")}.pkl'
-        with open(file_name, 'wb') as handle:
-            pkl.dump(data_dictionary, handle, protocol=pkl.HIGHEST_PROTOCOL)
-
-
 if __name__ == '__main__':
     # run_analysis()
     plot_results()
-    # merge_results()

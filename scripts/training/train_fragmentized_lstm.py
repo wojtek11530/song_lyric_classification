@@ -36,7 +36,7 @@ def run_train_fragmentized_lstm():
     my_trainer = pl.Trainer(
         logger=logger,
         max_epochs=20,
-        early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=6, verbose=True),
+        early_stop_callback=EarlyStopping(monitor='val_loss', mode='min', patience=3, verbose=True),
         gpus=1
     )
     model = FragmentizedLSTMClassifier(**hp)
@@ -48,7 +48,7 @@ def run_train_fragmentized_lstm():
 
 
 def get_tensorboard_log_name(hp: Dict[str, Union[float, bool]]) -> str:
-    name = 'FragLSTM_input_' + str(hp['input_dim']) + '_hidden_' + str(hp['hidden_dim']) + '_drop_' \
+    name = 'LSTM_input_' + str(hp['input_dim']) + '_hidden_' + str(hp['hidden_dim']) + '_drop_' \
            + str(hp['dropout']) + '_lay_num_' + str(hp['layer_dim']) + '_lr_' + str(hp['learning_rate']) \
            + '_wd_' + str(hp['weight_decay']) + '_max_words_' + str(hp['max_num_words']) + '_rem_sw_' \
            + str(hp['removing_stop_words']) + '_lemm_' + str(hp['lemmatization'])

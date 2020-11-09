@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Optional
 
 from flask import Flask, abort, jsonify, request
 from flask_cors import CORS
@@ -29,13 +29,20 @@ def get_song_emotion():
 
     emotion_probabilities = _get_emotion_probabilities(lyrics)
 
-    return jsonify(emotion_probabilities), 200
+    if emotion_probabilities is None:
+        return '', 204
+    else:
+        return jsonify(emotion_probabilities), 200
 
 
-def _get_emotion_probabilities(lyrics: str) -> Dict[str, float]:
-    _, encoded_label_probabilities = _model.predict(lyrics)
-    emotion_probabilities = {}
-    for encoded_label, prob in enumerate(encoded_label_probabilities):
-        label = label_encoder.inverse_transform([encoded_label])[0]
-        emotion_probabilities[label] = float(prob)
-    return emotion_probabilities
+def _get_emotion_probabilities(lyrics: str) -> Optional[Dict[str, float]]:
+    result = _model.predict(lyrics)
+    if result is not None:
+        _, encoded_label_probabilities = result
+        emotion_probabilities = {}
+        for encoded_label, prob in enumerate(encoded_label_probabilities):
+            label = label_encoder.inverse_transform([encoded_label])[0]
+            emotion_probabilities[label] = float(prob)
+        return emotion_probabilities
+    else:
+        return None
