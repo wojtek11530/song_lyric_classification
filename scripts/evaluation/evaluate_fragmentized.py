@@ -52,7 +52,7 @@ def evaluate_fragmentized_conv_net():
 
 _LSTM_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'lstm', 'saved_models',
-    'FragFragLSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_64_rem_sw_True_lemm_False.pt'
+    'FragLSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_64_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -77,6 +77,6 @@ def evaluate_fragmentized_lstm():
 
 
 if __name__ == '__main__':
-    evaluate_fragmentized_mlp()
-    # evaluate_fragmentized_conv_net()
+    # evaluate_fragmentized_mlp()
+    evaluate_fragmentized_conv_net()
     # evaluate_fragmentized_lstm()

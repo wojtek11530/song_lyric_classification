@@ -18,7 +18,7 @@ def run_train_fragmentized_conv_net():
         'output_dim': 4,
         'dropout': 0.4,
         'batch_size': 128,
-        'learning_rate': 5e-4,
+        'learning_rate': 3e-4,
         'weight_decay': 3e-4,
         'filters_number': 64,
         'kernels_sizes': [5, 10, 15],
