@@ -1,6 +1,7 @@
 import React, {useState, useContext} from 'react';
 import axios from 'axios';
 import {makeStyles} from '@material-ui/core/styles';
+import Alert from '@material-ui/lab/Alert'
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
@@ -23,6 +24,16 @@ const useStyles = makeStyles(theme => ({
         fontSize: '1.7rem',
         fontWeight: 400,
         textTransform: 'none'
+    },
+
+    alert: {
+        margin: theme.spacing(1, 0, 1, 0),
+        [theme.breakpoints.up('sm')]: {
+            margin: theme.spacing(2, 1, 0, 1)
+        },
+        [theme.breakpoints.up('md')]: {
+            margin: theme.spacing(2, 4, 0, 4)
+        },
     },
 
     paper: {
@@ -51,7 +62,7 @@ const RightComponent = () => {
     const [stateResults, setResults] = results;
     const [stateLyricsError, setLyricsError] = lyricsError;
 
-    const [rawResults, setRawResults] = useState(null);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [buttonDisabled, setButtonDisabled] = useState(false);
 
@@ -59,12 +70,20 @@ const RightComponent = () => {
         axios
             .post('http://localhost:5000/song_emotion', {lyrics: stateLyrics})
             .then(response => {
-                let formattedData = [];
-                for (const property in response.data) {
-                    formattedData.push(createData(property, response.data[property]));
+                console.log(response);
+                if (response.status === 204) {
+                    setResults(null);
+                    setShowResults(false);
+                    setShowErrorMessage(true);
+                } else {
+                    let formattedData = [];
+                    for (const property in response.data) {
+                        formattedData.push(createData(property, response.data[property]));
+                    }
+                    setResults(formattedData);
+                    setShowErrorMessage(false);
+                    setShowResults(true);
                 }
-                setResults(formattedData);
-                setShowResults(true);
             })
             .catch(error => console.log(error));
     }
@@ -74,6 +93,7 @@ const RightComponent = () => {
         if (stateLyrics === '') {
             setShowResults(false);
             setLyricsError(true);
+            setShowErrorMessage(false);
         } else {
             setLyricsError(false);
             fetchEmotionResults();
@@ -93,12 +113,16 @@ const RightComponent = () => {
                 onClick={onButtonClick}>
                 Get Emotions!
             </Button>
+            {showErrorMessage
+                ?  <Alert severity="error" className={classes.alert}>
+                        The emotion prediction has failed. The lyrics might be too short.
+                   </Alert>
+                : null}
             {showResults
                 ? <Paper className={classes.paper}>
                         <ResultChart/>
                     </Paper>
                 : null}
-
         </Container>
     )
 }

@@ -35,7 +35,7 @@ const renderCustomAxisTick = ({x, y, payload}) => {
     }
     return (
         <g transform={`translate(${x},${y})`}>
-            <text x={0} y={0} dy={14} textAnchor="middle" fill="#666" font-size="1.2rem">{payload.value}</text>
+            <text x={0} y={0} dy={14} textAnchor="middle" fill="#666" fontSize="1.2rem">{payload.value}</text>
             <image href={imageSrc} x={-24} y={18} width={48} height={48} fill="#666"/>
         </g>
     );
