@@ -135,8 +135,8 @@ class FragmentizedMLPClassifier(BaseModel):
         probs = torch.softmax(logits, dim=1)
         return int(probs.argmax(dim=1).eq(y_labels).sum().item())
 
-    def predict(self, sentence: str) -> Tuple[np.ndarray, np.ndarray]:
-        avg_embedding = self._get_avg_embedding(sentence)
+    def predict(self, lyrics: str) -> Optional[Tuple[np.ndarray, np.ndarray]]:
+        avg_embedding = self._get_avg_embedding(lyrics)
         res = self(avg_embedding)
         probs = torch.softmax(res, dim=-1)
         label = probs.argmax(dim=-1, keepdim=True)

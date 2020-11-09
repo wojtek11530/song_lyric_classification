@@ -1,6 +1,6 @@
 from abc import abstractmethod
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 
 import numpy as np
 import pytorch_lightning as pl
@@ -9,7 +9,7 @@ import torch
 
 class BaseModel(pl.LightningModule):
     @abstractmethod
-    def predict(self, lyrics: str) -> Tuple[np.ndarray, np.ndarray]:
+    def predict(self, lyrics: str) -> Optional[Tuple[np.ndarray, np.ndarray]]:
         pass
 
     def test_model(self) -> Tuple[torch.Tensor, torch.Tensor]:
