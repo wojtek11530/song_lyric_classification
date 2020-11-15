@@ -65,8 +65,6 @@ class FragmentizedMLPClassifier(BaseModel):
 
             softmax_out = F.softmax(x, dim=1)
             mean_softmax = torch.mean(softmax_out, dim=0, keepdim=True)
-
-            # x = torch.mean(x, dim=0, keepdim=True)
             out.append(mean_softmax)
 
         return torch.cat(out, dim=0)
@@ -146,16 +144,12 @@ class FragmentizedMLPClassifier(BaseModel):
 
     def predict(self, lyrics: str) -> Optional[Tuple[np.ndarray, np.ndarray]]:
         lyrics_fragments = fragmentize_text(lyrics)
-
         lyrics_fragments = [preprocess(fragment, remove_punctuation=True, remove_text_in_brackets=True)
                             for fragment in lyrics_fragments]
-
         if self._removing_stop_words:
             lyrics_fragments = [remove_stop_words(fragment) for fragment in lyrics_fragments]
-
         if self._lemmatization:
             lyrics_fragments = [lemmatize_text(fragment) for fragment in lyrics_fragments]
-
         remove_empty_fragments(lyrics_fragments)
 
         if not lyrics_fragments:

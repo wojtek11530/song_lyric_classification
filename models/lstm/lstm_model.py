@@ -189,7 +189,5 @@ class LSTMClassifier(BaseModel):
     def _get_padded_embeddings_sequence_and_length(self, lyrics: str) -> Tuple[torch.Tensor, List[int]]:
         words = word_tokenize(lyrics)
         embeddings = (np.array([self._word_embedder[word] for word in words]),)
-
         xx_pad, xx_lens = self._get_padded_embeddings_and_lengths(embeddings)
-
         return xx_pad, xx_lens
