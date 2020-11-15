@@ -3,6 +3,7 @@ import os
 import torch
 
 from models.base import BaseModel
+from models.conv_net.fragmentized_conv_net_model import FragmentizedConvNetClassifier
 from models.label_encoder import label_encoder
 from models.lstm.fragmentized_lstm_model import FragmentizedLSTMClassifier
 from models.mlp.fragmentized_mlp_model import FragmentizedMLPClassifier
@@ -18,8 +19,8 @@ _LYRICS = "Here comes the sun, do, dun, do, do Here comes the sun, and I say It'
           "dun, do, do Here comes the sun, and I say It's all right Sun, sun, sun, here it comes Sun, sun, sun, " \
           "here it comes Sun, sun, sun, here it comes Sun, sun, sun, here it comes Sun, sun, sun, here it comes " \
           "Little darling, I feel that ice is slowly melting Little darling, it seems like years since it's been " \
-          "clear Here comes the sun, do, dun, do, do Here comes the sun, and I say It's all right Here comes the sun, " \
-          "do, dun, do, do Here comes the sun It's all right It's all right"
+          "clear Here comes the sun, do, dun, do, do Here comes the sun, and I say It's all right Here comes the " \
+          "sun, do, dun, do, do Here comes the sun It's all right It's all right"
 
 _DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -33,21 +34,27 @@ _LSTM_MODEL_PATH = os.path.join(
     'FragLSTM_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_0.0001_max_words_64_rem_sw_True_lemm_False.pt'
 )
 
+_CONV_MODEL_PATH = os.path.join(
+    _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
+    'FragConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.4_lr_0.0003_wd_0.0003_max_words_64_rem_sw_True_'
+    'lemm_False_10-21-2020_12.49.59.pt'
+)
+
 
 def perform_prediction():
     mlp_model = get_fragmentized_mlp_model()
     lstm_model = get_lstm_model()
-    # gru_model = get_gru_model()
-    # cnn_model = get_cnn_model()
+    cnn_model = get_cnn_model()
 
-    # mlp_result = predict_emotion(mlp_model, _LYRICS)
+    mlp_result = predict_emotion(mlp_model, _LYRICS)
     lstm_result = predict_emotion(lstm_model, _LYRICS)
-    # gru_result = predict_emotion(gru_model, _LYRICS)
-    # cnn_result = predict_emotion(cnn_model, _LYRICS)
+    cnn_result = predict_emotion(cnn_model, _LYRICS)
 
     print(f'Lyrics: {_LYRICS}')
     print(f'Predicted emotion:)'
+          f'\n - mlp: {mlp_result}'
           f'\n - lstm: {lstm_result}'
+          f'\n - cnn: {cnn_result}'
           )
 
 
@@ -83,6 +90,25 @@ def get_lstm_model() -> FragmentizedLSTMClassifier:
     lstm_model.load_state_dict(torch.load(_LSTM_MODEL_PATH, map_location=_DEVICE))
     lstm_model.eval()
     return lstm_model
+
+
+def get_cnn_model() -> FragmentizedConvNetClassifier:
+    conv_model = FragmentizedConvNetClassifier(
+        embedding_dim=200,
+        output_dim=4,
+        dropout=0.5,
+        batch_size=128,
+        learning_rate=1e-4,
+        weight_decay=65e-4,
+        filters_number=64,
+        kernels_sizes=[5, 10, 15],
+        max_num_words=64,
+        removing_stop_words=True,
+        lemmatization=False
+    )
+    conv_model.load_state_dict(torch.load(_CONV_MODEL_PATH, map_location=_DEVICE))
+    conv_model.eval()
+    return conv_model
 
 
 if __name__ == '__main__':
