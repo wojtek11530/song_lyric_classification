@@ -59,9 +59,13 @@ def perform_prediction():
 
 
 def predict_emotion(model: BaseModel, lyrics: str) -> str:
-    encoded_label, probs = model.predict(lyrics)
-    label = label_encoder.inverse_transform(encoded_label)
-    return label[0]
+    result = model.predict(lyrics)
+    if result is not None:
+        encoded_label, probabilities = result
+        label = label_encoder.inverse_transform(encoded_label)
+        return label[0]
+    else:
+        return 'Prediction did not succeed'
 
 
 def get_fragmentized_mlp_model() -> FragmentizedMLPClassifier:

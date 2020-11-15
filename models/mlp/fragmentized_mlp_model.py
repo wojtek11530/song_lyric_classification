@@ -10,8 +10,8 @@ from torch.utils.data import DataLoader, Dataset
 from models.base import BaseModel
 from models.fragmentized_lyric_dataset import FragmentizedLyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
-from preprocessing.text_preprocessor import fragmentize_text, preprocess, remove_stop_words, lemmatize_text, \
-    remove_empty_fragments
+from preprocessing.text_preprocessor import (
+    fragmentize_text, lemmatize_text, preprocess, remove_empty_fragments, remove_stop_words)
 
 _WORKERS_NUM = 4
 

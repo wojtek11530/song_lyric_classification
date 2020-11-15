@@ -11,8 +11,8 @@ from torch.utils.data import DataLoader, Dataset
 from models.base import BaseModel
 from models.fragmentized_lyric_dataset import FragmentizedLyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
-from preprocessing.text_preprocessor import fragmentize_text, preprocess, remove_stop_words, lemmatize_text, \
-    remove_empty_fragments
+from preprocessing.text_preprocessor import (
+    fragmentize_text, lemmatize_text, preprocess, remove_empty_fragments, remove_stop_words)
 
 _WORKERS_NUM = 1
 
@@ -60,16 +60,16 @@ class FragmentizedLSTMClassifier(BaseModel):
         yy = torch.Tensor(yy).to(dtype=torch.int64)
         return xx_pad, yy, xx_lens
 
-    def _get_padded_embeddings_and_lengths(self, xx: Tuple[List[np.ndarray]]) -> Tuple[
-        List[List[int]], List[torch.Tensor]]:
+    def _get_padded_embeddings_and_lengths(self, xx: Tuple[List[np.ndarray]]) \
+            -> Tuple[List[List[int]], List[torch.Tensor]]:
         if self._max_num_words:
-            xx = [[torch.Tensor(embeddings[:self._max_num_words]) for embeddings in x_fragments]
-                  for x_fragments in xx]
+            xx_as_tensors = [[torch.Tensor(embeddings[:self._max_num_words]) for embeddings in x_fragments]
+                             for x_fragments in xx]
         else:
-            xx = [[torch.Tensor(embeddings) for embeddings in fragment_embeddings]
-                  for fragment_embeddings in xx]
-        xx_lens = [[len(fragment_embedding) for fragment_embedding in x_fragments] for x_fragments in xx]
-        xx_pad = [pad_sequence(x, batch_first=True, padding_value=0) for x in xx]
+            xx_as_tensors = [[torch.Tensor(embeddings) for embeddings in fragment_embeddings]
+                             for fragment_embeddings in xx]
+        xx_lens = [[len(fragment_embedding) for fragment_embedding in x_fragments] for x_fragments in xx_as_tensors]
+        xx_pad = [pad_sequence(x, batch_first=True, padding_value=0) for x in xx_as_tensors]
         return xx_lens, xx_pad
 
     def forward(self, xx: List[torch.Tensor], xx_lens: List[List[int]]) -> torch.Tensor:

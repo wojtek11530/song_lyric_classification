@@ -20,8 +20,8 @@ _LYRICS = "Here comes the sun, do, dun, do, do Here comes the sun, and I say It'
           "dun, do, do Here comes the sun, and I say It's all right Sun, sun, sun, here it comes Sun, sun, sun, " \
           "here it comes Sun, sun, sun, here it comes Sun, sun, sun, here it comes Sun, sun, sun, here it comes " \
           "Little darling, I feel that ice is slowly melting Little darling, it seems like years since it's been " \
-          "clear Here comes the sun, do, dun, do, do Here comes the sun, and I say It's all right Here comes the sun, " \
-          "do, dun, do, do Here comes the sun It's all right It's all right"
+          "clear Here comes the sun, do, dun, do, do Here comes the sun, and I say It's all right Here comes the " \
+          "sun, do, dun, do, do Here comes the sun It's all right It's all right"
 
 _DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
@@ -42,7 +42,8 @@ _GRU_MODEL_PATH = os.path.join(
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_256_rem_sw_True_lemm_False.pt'
+    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_256_rem_sw_True'
+    '_lemm_False.pt'
 )
 
 
@@ -66,9 +67,13 @@ def perform_prediction():
 
 
 def predict_emotion(model: BaseModel, lyrics: str) -> str:
-    encoded_label, probs = model.predict(lyrics)
-    label = label_encoder.inverse_transform(encoded_label)
-    return label[0]
+    result = model.predict(lyrics)
+    if result is not None:
+        encoded_label, probabilities = result
+        label = label_encoder.inverse_transform(encoded_label)
+        return label[0]
+    else:
+        return 'Prediction did not succeed'
 
 
 def get_mlp_model() -> MLPClassifier:
