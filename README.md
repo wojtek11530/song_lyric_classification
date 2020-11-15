@@ -1,8 +1,19 @@
 # Song lyric classification
+Engineer thesis project which aim is to create song emotions classification model basing on lyrics.
+
+## Table of contents
+* [General description](#general-description)
+* [Getting dataset](#getting-dataset)
+* [Text preprocessing](#text-preprocessing)
+* [Feature extraction](#feature-extraction)
+* [Classification models](#classification-models)
+* [Web application](#web-application)
+    * [Backend](#backend)
+    * [Frontend](#frontend)
 
 ## General description
 
-Engineer thesis project which aim is to create song emotions classification model basing on lyrics. It uses NLP methods and machine learning methods to classify a lyrics to one from below classes:
+The project contains a program to classify song emotion basing on its lyrics. It uses NLP methods and machine learning methods to classify a lyrics to one from below classes:
 - angry
 - happy
 - sad
@@ -45,6 +56,7 @@ The process of getting the datasets can be repeated by running scripts from `/sc
   5. `split_dataset` - script splitting the dataset into training, validation and testing datasets.
 
 The presentation and visualization of the whole dataset (`filtered_dataset_with_lyrics.csv`) is included in the Jupyter notebook in `/notebooks` directory.
+
 ## Text preprocessing
 
 The project consist text preprocessing functions. They are located in file `text_preprocessing.py` in `/preprocessing` folder. It consist of following functions:
