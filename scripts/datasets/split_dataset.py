@@ -5,7 +5,7 @@ from sklearn.model_selection import train_test_split
 
 _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
-_DATA_FILE = 'preprocessed_dataset_with_lyrics.csv'
+_DATA_FILE = 'filtered_dataset_with_lyrics.csv'
 
 _RANDOM_SEED = 42
 
