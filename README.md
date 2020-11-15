@@ -105,7 +105,7 @@ There are following kinds of models:
 - Recurrent models (LSTM, GRU) which as an input take a sequence of `max_num_words` first words of lyrics
 - Convolutional net (CNN()) model which as input takes a matrix of dimensions `max_num_words` by `embedding_dim`. In the case when lyrics have fewer words it is padded with zeros.
   
-There are variants of MLP, LSTM and CNN models which inputs are in the form of fragments representing subsequent fragments of text. As a prediction for one song an average of fragments prediction is calculated. These models are in files with `fragmentized_` preix. They use other `Dataset` class - `FragmentizedLyricsDataset` (in file `fragmentized_lyric_dataset.py`) which returns list of embeddings arrays corresponding to each lyrics fragment. 
+There are variants of MLP, LSTM and CNN models which inputs are in the form of fragments representing subsequent fragments of text. As a prediction for one song an average of fragments prediction is calculated. These models are in files with `fragmentized_` prefix. They use other `Dataset` class - `FragmentizedLyricsDataset` (in file `fragmentized_lyric_dataset.py`) which returns list of embeddings arrays corresponding to each lyrics fragment. 
 
 In that dataset lyrics are divided into fragments using `fragmentize_text` function from `text_preprocessor` file. It divides text basing on inline tags in squared bractes, e.g. `[CHORUS]`. If there is no such tags it returns fragments with equal number of words.
 
@@ -114,3 +114,28 @@ There is an option to train MLP and CNN models with SMOTE upsampled training dat
  - For CNN model `smote` parameter of model has to be `True`. Then `UpsampledSequenceEmbeddingDataset` (from `upsampled_sequence_embedding_dataset.py`) is used as training datasets. It upsamples less numbered classes based on embeddings of `max_num_words` first words of lyrics.
   
 ## Web application
+The web application consists of backend app written in Python using Flask and frontend app written with React.js with usage of material-ui components.
+
+### Backend 
+Backend application contains one POST method under `/song_emotion` with one parameter `lyrics` containing lyrics af a song for which we want predict emotions. Its response is in JSON format and includes emotion classes with probabilities, e.g.:
+```
+{
+    "angry": 0.43564414978027344,
+    "happy": 0.3825746476650238,
+    "relaxed": 0.07612542808055878,
+    "sad": 0.10565581917762756
+}
+```
+The method uses a saved ML model together with a saved FastTExt model. Currently it is written to use convolutional net class (but can be easily switched with another of available classes).
+
+The api is exposed on default port 5000. The files of the app are in `/backend_app` localization.
+
+### Frontend
+The frontend app is located in `/fronted_app`. In order to run it type in terminal
+```
+cd frontend_app
+npm install
+npm start
+```
+![Screenshot of the frontend interface](images/frontend_screenshot.png)
+
