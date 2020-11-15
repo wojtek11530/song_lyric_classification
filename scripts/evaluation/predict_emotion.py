@@ -58,7 +58,7 @@ def perform_prediction():
     cnn_result = predict_emotion(cnn_model, _LYRICS)
 
     print(f'Lyrics: {_LYRICS}')
-    print(f'Predicted emotion:)'
+    print(f'Predicted emotion:'
           f'\n - mlp: {mlp_result}'
           f'\n - lstm: {lstm_result}'
           f'\n - gru: {gru_result}'
