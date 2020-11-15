@@ -3,12 +3,15 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 import torch
+from nltk import word_tokenize
 from torch.nn import functional as F
 from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.fragmentized_lyric_dataset import FragmentizedLyricsDataset
 from models.word_embedding.word_embedder import WordEmbedder
+from preprocessing.text_preprocessor import (
+    fragmentize_text, lemmatize_text, preprocess, remove_empty_fragments, remove_stop_words)
 
 _WORKERS_NUM = 1
 
@@ -53,15 +56,14 @@ class FragmentizedConvNetClassifier(BaseModel):
         self._batch_size = batch_size
         self._weight_decay = weight_decay
 
-    def pad_collate(self, batch: List[Tuple[np.ndarray, int]]) \
+    def pad_collate(self, batch: List[Tuple[List[np.ndarray], int]]) \
             -> Tuple[List[torch.Tensor], torch.Tensor]:
         xx, yy = zip(*batch)
-
         xx_pad = [self._get_padded_fragmentized_x(x_fragments) for x_fragments in xx]
         yy = torch.Tensor(yy).to(dtype=torch.int64)
         return xx_pad, yy
 
-    def _get_padded_fragmentized_x(self, x_fragments: np.ndarray) -> torch.Tensor:
+    def _get_padded_fragmentized_x(self, x_fragments: List[np.ndarray]) -> torch.Tensor:
         x_lengths = [len(fragment_embedding) for fragment_embedding in x_fragments]
         x_pad = np.zeros((len(x_fragments), self._max_num_words, self._embedding_dim))
         for i, x_len in enumerate(x_lengths):
@@ -88,10 +90,7 @@ class FragmentizedConvNetClassifier(BaseModel):
 
             softmax_out = F.softmax(x_out, dim=1)
             mean_softmax = torch.mean(softmax_out, dim=0, keepdim=True)
-            log_mean_softmax = torch.log(mean_softmax)
-
-            # x_out = torch.mean(x_out, dim=0, keepdim=True)
-            output.append(log_mean_softmax)
+            output.append(mean_softmax)
 
         return torch.cat(output, dim=0)
 
@@ -123,10 +122,11 @@ class FragmentizedConvNetClassifier(BaseModel):
                       batch: Tuple[torch.nn.utils.rnn.PackedSequence, torch.Tensor],
                       batch_idx: int) -> Dict[str, Any]:
         x, y_labels = batch
-        logits = self(x)
+        softmax_values = self(x)
+        logits = torch.log(softmax_values)
         loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
-        correct = self._get_correct_prediction_count(logits, y_labels)
+        correct = self._get_correct_prediction_count(softmax_values, y_labels)
         return {'loss': loss, "correct": correct, "total": total, 'log': {'train_loss': loss}}
 
     def training_epoch_end(self, outputs: List[Dict[str, Any]]) -> Dict[str, Any]:
@@ -140,10 +140,11 @@ class FragmentizedConvNetClassifier(BaseModel):
                         batch_idx: int) \
             -> Dict[str, Any]:
         x, y_labels = val_batch
-        logits = self(x)
+        softmax_values = self(x)
+        logits = torch.log(softmax_values)
         loss = F.nll_loss(logits, y_labels)
         total = len(y_labels)
-        correct = self._get_correct_prediction_count(logits, y_labels)
+        correct = self._get_correct_prediction_count(softmax_values, y_labels)
         return {'val_loss': loss, "correct": correct, "total": total}
 
     def validation_epoch_end(self, outputs: List[Dict[str, Any]]) \
@@ -155,25 +156,40 @@ class FragmentizedConvNetClassifier(BaseModel):
         tensorboard_logs = {'val_loss': avg_loss, "val_acc": correct / total}
         return {'avg_val_loss': avg_loss, 'log': tensorboard_logs}
 
-    def _get_correct_prediction_count(self, logits: torch.Tensor, y_labels: torch.Tensor) -> int:
-        probs = torch.softmax(logits, dim=1)
+    def _get_correct_prediction_count(self, probs: torch.Tensor, y_labels: torch.Tensor) -> int:
         return int(probs.argmax(dim=1).eq(y_labels).sum().item())
-
-    def predict(self, lyrics: str) -> Optional[Tuple[np.ndarray, np.ndarray]]:
-        embeddings = self._get_embeddings(lyrics)
-        res = torch.squeeze(self(embeddings))
-        probs = torch.softmax(res, dim=-1)
-        label = probs.argmax(dim=-1, keepdim=True)
-        return label.data.numpy(), probs.data.numpy()
-
-    def _get_embeddings(self, sentence: str) -> List[torch.Tensor]:
-        words = sentence.split()
-        embeddings = [self._word_embedder[word] for word in words]
-        embeddings = [torch.Tensor(embeddings)]
-        return embeddings
 
     def _batch_step(self, batch: List) -> Tuple[torch.Tensor, torch.Tensor]:
         x, y_labels = batch
         logits = self(x)
         _, y_hat = torch.max(logits, dim=1)
         return y_labels, y_hat
+
+    def predict(self, lyrics: str) -> Optional[Tuple[np.ndarray, np.ndarray]]:
+        lyrics_fragments = fragmentize_text(lyrics)
+        lyrics_fragments = [preprocess(fragment, remove_punctuation=True, remove_text_in_brackets=True)
+                            for fragment in lyrics_fragments]
+        if self._removing_stop_words:
+            lyrics_fragments = [remove_stop_words(fragment) for fragment in lyrics_fragments]
+        if self._lemmatization:
+            lyrics_fragments = [lemmatize_text(fragment) for fragment in lyrics_fragments]
+        remove_empty_fragments(lyrics_fragments)
+
+        if not lyrics_fragments:
+            return None
+        else:
+            x = self._get_embeddings(lyrics_fragments)
+            result = self(x)
+            probs = torch.squeeze(result)
+            label = probs.argmax(dim=-1, keepdim=True)
+            return label.data.numpy(), probs.data.numpy()
+
+    def _get_embeddings(self, lyric_fragments: List[str]) -> List[torch.Tensor]:
+        embeddings_of_fragments = []
+        for fragment in lyric_fragments:
+            words = word_tokenize(fragment)
+            embeddings = np.array([self._word_embedder[word] for word in words])
+            embeddings_of_fragments.append(embeddings)
+
+        xx_pad = [self._get_padded_fragmentized_x(embeddings_of_fragments)]
+        return xx_pad

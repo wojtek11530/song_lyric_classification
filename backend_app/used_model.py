@@ -11,7 +11,8 @@ _DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_256_rem_sw_True_lemm_False.pt'
+    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_'
+    '256_rem_sw_True_lemm_False.pt'
 )
 
 
