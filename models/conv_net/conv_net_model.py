@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from models.base import BaseModel
 from models.lyric_dataset import LyricsDataset
-from models.upsampled_sequence_embeding_dataset import UpsampledSequenceEmbeddingDataset
+from models.upsampled_sequence_embedding_dataset import UpsampledSequenceEmbeddingDataset
 from models.word_embedding.word_embedder import WordEmbedder
 from preprocessing.text_preprocessor import lemmatize_text, preprocess, remove_stop_words
 

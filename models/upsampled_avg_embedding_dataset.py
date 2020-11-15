@@ -21,7 +21,7 @@ class UpsampledAverageEmbeddingDataset(Dataset):
         song_df = pd.read_csv(filepath, index_col=0)
         song_df = self._preprocess_lyrics_in_df(song_df, lemmatization, removing_stop_words)
         song_df = self._get_df_with_embeddings(embedding_dim, song_df)
-        X_upsampled, y_upsampled = self.get_upsampled_data_with_smote(song_df)
+        X_upsampled, y_upsampled = self._get_upsampled_data_with_smote(song_df)
         self.embeddings = X_upsampled
         self.emotion_data = label_encoder.transform(y_upsampled).astype(np.int64)
         print(f"{datetime.now():%Y-%m-%d %H:%M:%S} Upsampled average embedding dataset creation ended")
@@ -45,13 +45,6 @@ class UpsampledAverageEmbeddingDataset(Dataset):
         song_df = song_df[song_df['lyrics'] != '']
         return song_df
 
-    def get_upsampled_data_with_smote(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
-        X = np.array(df.loc[:, df.columns != 'emotion_4Q'])
-        y = np.array(df.loc[:, df.columns == 'emotion_4Q'])
-        smote = SMOTE(random_state=_RANDOM_SEED)
-        X_upsampled, y_upsampled = smote.fit_sample(X, y.ravel())
-        return X_upsampled, y_upsampled
-
     def _get_df_with_embeddings(self, embedding_dim, song_df):
         word_embedder = WordEmbedder()
         for i in range(embedding_dim):
@@ -69,3 +62,10 @@ class UpsampledAverageEmbeddingDataset(Dataset):
             ['arousal_mean', 'arousal_std', 'artist', 'dataset', 'emotion_2Q', 'general_genre', 'genre',
              'language', 'lyrics', 'song_id_from_src', 'title', 'valence_mean', 'valence_std'], axis=1)
         return song_df
+
+    def _get_upsampled_data_with_smote(self, df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
+        X = np.array(df.loc[:, df.columns != 'emotion_4Q'])
+        y = np.array(df.loc[:, df.columns == 'emotion_4Q'])
+        smote = SMOTE(random_state=_RANDOM_SEED)
+        X_upsampled, y_upsampled = smote.fit_sample(X, y.ravel())
+        return X_upsampled, y_upsampled

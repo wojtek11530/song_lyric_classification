@@ -76,4 +76,4 @@ song_df.drop_duplicates(['lyrics'], inplace=True)
 
 song_df['general_genre'] = song_df.apply(lambda x: _GENRE_MAPPER[x['genre']], axis=1)
 
-song_df.to_csv(os.path.join(_DATASET_PATH, 'preprocessed_' + _DATA_FILE))
+song_df.to_csv(os.path.join(_DATASET_PATH, 'filtered_' + _DATA_FILE))
