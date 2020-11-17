@@ -3,6 +3,7 @@ from typing import Dict, Optional
 from flask import Flask, abort, jsonify, request
 from flask_cors import CORS
 
+from backend_app.results import add_to_results, get_average_results
 from backend_app.used_model import get_model
 from models.label_encoder import label_encoder
 
@@ -26,13 +27,17 @@ def get_song_emotion():
         abort(400)
 
     lyrics = request.json['lyrics']
+    title = request.json['artist']
+    artist = request.json['title']
 
     emotion_probabilities = _get_emotion_probabilities(lyrics)
 
     if emotion_probabilities is None:
         return '', 204
     else:
-        return jsonify(emotion_probabilities), 200
+        add_to_results(title, artist, emotion_probabilities)
+        average_results = get_average_results()
+        return jsonify([emotion_probabilities, average_results]), 200
 
 
 def _get_emotion_probabilities(lyrics: str) -> Optional[Dict[str, float]]:

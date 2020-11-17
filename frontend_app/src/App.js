@@ -9,6 +9,17 @@ import {ThemeProvider} from '@material-ui/core/styles';
 import {createMuiTheme} from '@material-ui/core/styles'
 
 const theme = createMuiTheme({
+
+    breakpoints: {
+        values: {
+          xs: 0,
+          sm: 720,
+          md: 880,
+          lg: 1280,
+          xl: 1920,
+        },
+    },
+
     palette: {
         primary: {
             main: '#084887'
@@ -33,13 +44,15 @@ const useStyles = makeStyles(theme => ({
 const App = () => {
     const classes = useStyles();
 
+    const [title, setTitle] = useState('');
+    const [artist, setArtist] = useState('');
     const [lyrics, setLyrics] = useState('');
-    const [results, setResults] = useState([]);
     const [lyricsError, setLyricsError] = useState(false);
 
     const contextValues = {
+        title: [title, setTitle],
+        artist: [artist, setArtist],
         lyrics: [lyrics, setLyrics],
-        results: [results, setResults],
         lyricsError: [lyricsError, setLyricsError]
     };
 

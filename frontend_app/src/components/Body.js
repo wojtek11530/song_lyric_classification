@@ -19,10 +19,10 @@ export default function Body() {
     return (
         <Container maxWidth="lg" className={classes.bodyContainer}>
             <Grid container spacing={1}>
-                <Grid item sm={6} xs={12}>
+                <Grid item md={6} sm={5} xs={12}>
                     <LeftComponent/>
                 </Grid>
-                <Grid item sm={6} xs={12}>
+                <Grid item md={6} sm={7} xs={12}>
                     <RightComponent/>
                 </Grid>
             </Grid>

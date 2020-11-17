@@ -41,25 +41,22 @@ const renderCustomAxisTick = ({x, y, payload}) => {
     );
 };
 
-export default function ResultChart() {
+export default function ResultChart({ title, stateResults }) {
     const theme = useTheme();
 
     const labelFormatter = (value) => {
         return Math.round(100 * value) + '%';
     };
 
-    const {lyrics, results, lyricsError} = useContext(Context);
-    const [stateResults, setResults] = results;
-
     return (
         <React.Fragment>
             <Typography component="h2" variant="h5" color="primary" gutterBottom>
-                Emotions Probabilities
+                {title}
             </Typography>
             <ResponsiveContainer>
                 <BarChart
                     data={stateResults}
-                    margin={{top: 16, right: 8, bottom: 82, left: 0}}>
+                    margin={{top: 8, right: 8, bottom: 82, left: 0}}>
                     <XAxis dataKey="mood" tick={renderCustomAxisTick}/>
                     <YAxis tick={{fontSize: '1.1rem'}} tickFormatter={labelFormatter}/>
                     <Bar dataKey="prob" barSize={90} fill={theme.palette.secondary.light}>
