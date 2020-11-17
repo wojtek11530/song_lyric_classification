@@ -19,9 +19,16 @@ const useStyles = makeStyles(theme => ({
     button: {
         margin: theme.spacing(1, 1, 1, 1),
         [theme.breakpoints.up('sm')]: {
-            margin: theme.spacing(10, 1, 1, 1)
+            margin: theme.spacing(8, 1, 4, 1)
         },
         fontSize: '1.7rem',
+        fontWeight: 400,
+        textTransform: 'none'
+    },
+
+    smallButton: {
+        margin: theme.spacing(1, 1, 1, 1),
+        fontSize: '1.2rem',
         fontWeight: 400,
         textTransform: 'none'
     },
@@ -42,10 +49,10 @@ const useStyles = makeStyles(theme => ({
         height: 350,
         margin: theme.spacing(1, 1, 1, 1),
         [theme.breakpoints.up('sm')]: {
-            margin: theme.spacing(4, 2, 1, 2)
+            margin: theme.spacing(1, 2, 1, 2)
         },
         [theme.breakpoints.up('md')]: {
-            margin: theme.spacing(4, 4, 1, 4)
+            margin: theme.spacing(1, 4, 1, 4)
         }
     }
 }));
@@ -66,6 +73,8 @@ const RightComponent = () => {
     const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [results, setResults] = useState([]);
+    const [averageResultButtonName, setAverageResultButtonName] = useState('Show average songs emotions');
+    const [showAverageResults, setShowAverageResults] = useState(false);
     const [averageResults, setAverageResults] = useState([]);
     const [buttonDisabled, setButtonDisabled] = useState(false);
 
@@ -92,6 +101,7 @@ const RightComponent = () => {
                     setAverageResults(formattedAverageData);
 
                     setShowErrorMessage(false);
+                    setShowAverageResults(false);
                     setShowResults(true);
                 }
             })
@@ -102,6 +112,7 @@ const RightComponent = () => {
         setButtonDisabled(true);
         if (stateLyrics === '') {
             setShowResults(false);
+            setShowAverageResults(false);
             setLyricsError(true);
             setShowErrorMessage(false);
         } else {
@@ -109,6 +120,15 @@ const RightComponent = () => {
             fetchEmotionResults();
         }
         setButtonDisabled(false);
+    }
+
+    const onSmallButtonClick = () => {
+        if (showAverageResults == true) {
+            setAverageResultButtonName('Show average songs emotions');
+        } else {
+            setAverageResultButtonName('Hide average songs emotions');
+        }
+        setShowAverageResults(!showAverageResults);
     }
 
     return (
@@ -133,10 +153,22 @@ const RightComponent = () => {
                     <Paper className={classes.paper}>
                         <ResultChart title={'Song Emotion Probabilities'} stateResults={results}/>
                     </Paper>
+                     <Button
+                        size="medium"
+                        variant="contained"
+                        color="primary"
+                        disableElevation
+                        className={classes.smallButton}
+                        onClick={onSmallButtonClick}>
+                        {averageResultButtonName}
+                    </Button>
+                  </>
+                : null}
+            {showAverageResults
+                ?
                     <Paper className={classes.paper}>
                         <ResultChart title={'Average Emotion Probabilities'} stateResults={averageResults}/>
                     </Paper>
-                  </>
                 : null}
         </Container>
     )

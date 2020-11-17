@@ -48,9 +48,6 @@ export default function ResultChart({ title, stateResults }) {
         return Math.round(100 * value) + '%';
     };
 
-    // const {title, artist, lyrics, results, lyricsError} = useContext(Context);
-    // const [stateResults, setResults] = results;
-
     return (
         <React.Fragment>
             <Typography component="h2" variant="h5" color="primary" gutterBottom>
@@ -59,7 +56,7 @@ export default function ResultChart({ title, stateResults }) {
             <ResponsiveContainer>
                 <BarChart
                     data={stateResults}
-                    margin={{top: 16, right: 8, bottom: 82, left: 0}}>
+                    margin={{top: 8, right: 8, bottom: 82, left: 0}}>
                     <XAxis dataKey="mood" tick={renderCustomAxisTick}/>
                     <YAxis tick={{fontSize: '1.1rem'}} tickFormatter={labelFormatter}/>
                     <Bar dataKey="prob" barSize={90} fill={theme.palette.secondary.light}>
