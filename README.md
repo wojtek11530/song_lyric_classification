@@ -1,5 +1,5 @@
 # Song lyric classification
-Engineer thesis project which aim is to create song emotions classification model basing on lyrics.
+Engineer thesis project which aim is to create a song emotions classification model basing on lyrics.
 
 ## Table of contents
 * [General description](#general-description)
@@ -76,7 +76,7 @@ During preprocessing some steps can be omitted, e.g. removing stop words and/or 
 
 ## Feature extraction
 
-To extract features word embedding methodology is used. The project utilizes fastText method [official site](https://fasttext.cc/)
+To extract features word embedding methodology is used. The project utilizes fastText method ([official site](https://fasttext.cc/)).
 
 The class of a fastText model `WordEmbedder` is located in `/models/word_embedding/word_embedder.py`. It loads a fastText model in `.bin` format from `/models/word_embedding/saved_models`. The exact name of model can be passed in constant `_MODEL_PATH`. 
 
