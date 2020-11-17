@@ -57,7 +57,9 @@ function createData(mood, prob) {
 const RightComponent = () => {
     const classes = useStyles();
 
-    const {lyrics, results, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, results, lyricsError} = useContext(Context);
+    const [stateTitle, setTitle] = title;
+    const [stateArtist, setArtist] = artist;
     const [stateLyrics, setLyrics] = lyrics;
     const [stateResults, setResults] = results;
     const [stateLyricsError, setLyricsError] = lyricsError;
@@ -68,7 +70,7 @@ const RightComponent = () => {
 
     const fetchEmotionResults = () => {
         axios
-            .post('http://localhost:5000/song_emotion', {lyrics: stateLyrics})
+            .post('http://localhost:5000/song_emotion', {lyrics: stateLyrics, title: stateTitle, artist: stateArtist})
             .then(response => {
                 console.log(response);
                 if (response.status === 204) {

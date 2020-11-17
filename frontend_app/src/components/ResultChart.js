@@ -48,7 +48,7 @@ export default function ResultChart() {
         return Math.round(100 * value) + '%';
     };
 
-    const {lyrics, results, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, results, lyricsError} = useContext(Context);
     const [stateResults, setResults] = results;
 
     return (

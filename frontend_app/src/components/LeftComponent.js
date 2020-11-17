@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
 
 const LeftComponent = () => {
     const classes = useStyles();
-    const divider = 21;
+    const divider = 30;
     const minRow = 12;
     const calcRows = () => {
         return Math.max(minRow, Math.round((window.innerHeight - 200) / divider));
@@ -46,12 +46,34 @@ const LeftComponent = () => {
         window.addEventListener('resize', handleResize)
     });
 
-    const {lyrics, results, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, results, lyricsError} = useContext(Context);
+    const [stateTitle, setTitle] = title;
+    const [stateArtist, setArtist] = artist;
     const [stateLyrics, setLyrics] = lyrics;
     const [stateLyricsError, setLyricsError] = lyricsError;
 
     return (
         <Container className={classes.container}>
+            <Typography variant="h5" className={classes.header}>
+                {"Song title"}
+            </Typography>
+            <TextField
+                InputProps={{className: classes.input}}
+                FormHelperTextProps={{className: classes.helperText}}
+                fullWidth
+                variant="outlined"
+                onChange={(event) => setTitle(event.target.value)}
+            />
+            <Typography variant="h5" className={classes.header}>
+                {"Artist"}
+            </Typography>
+            <TextField
+                InputProps={{className: classes.input}}
+                FormHelperTextProps={{className: classes.helperText}}
+                fullWidth
+                variant="outlined"
+                onChange={(event) => setArtist(event.target.value)}
+            />
             <Typography variant="h5" className={classes.header}>
                 {"Song lyrics"}
             </Typography>
