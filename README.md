@@ -17,7 +17,7 @@ Engineer thesis project which aim is to create song emotions classification mode
 
 ## General description
 
-The project contains a program to predict emotion of song basing on its lyrics. It uses NLP and machine learning methods to classify a lyrics to one from below classes:
+The project contains a program to predict emotion of song basing on its lyrics. It uses NLP and machine learning methods to classify lyrics to one from below classes:
 - angry
 - happy
 - sad
@@ -49,8 +49,8 @@ The `.csv` files with datasets are located in `/datasets` directory. It consists
 The process of getting the datasets can be repeated by running scripts from `/scripts/datasets` in the follwoing order:
   1. `download_raw_dataset` - it downloads raw data about songs and their emotions from three sources: [PMemo2019](https://github.com/HuiZhangDB/PMEmo), [emoMusic](http://cvml.unige.ch/databases/emoMusic/),
   [MoodyLyrics4Q](http://softeng.polito.it/erion/). All needed files are saved in `/datasets` folder.
-  2. `merge_raw_datasets` - it merges three datasets into one. It drops redundant data, standarize and normalize data, extract classes (happy, relaxed, sad, angry) for those data which are in nummerical format of valance and  arousal values. The result is saved as `merged_datasets.csv` file.
-  3. `get_lyrics_to_dataset` - it downloads the lyrics for the songs using  LyricsGenius API. It also downloads music genres for songs form `theaudiodb.com`. By means of `langdetect` library non-english songs are filtered out. The result is saved as `merged_datasets.csv` file. Because of a lot of API requests, an execution of the script can take long time.
+  2. `merge_raw_datasets` - it merges three datasets into one. It drops redundant data, standarizes and normalizes data, extracts classes (happy, relaxed, sad, angry) for those data which are in numerical format of valance and  arousal values. The result is saved as `merged_datasets.csv` file.
+  3. `get_lyrics_to_dataset` - it downloads the lyrics for the songs using  LyricsGenius API. It also downloads music genres for songs from `theaudiodb.com`. By means of `langdetect` library non-english songs are filtered out. The result is saved as `merged_datasets.csv` file. Because of a lot of API requests, an execution of the script can take long time.
   4. `filter_data_with_lyrics` - it filters out records from `merged_datasets.csv`:
      - deleting manually chosen data which consist incorrect or junk lyrics,
      - deleting records with too long lyrics,
