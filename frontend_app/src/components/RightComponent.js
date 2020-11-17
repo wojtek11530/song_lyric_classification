@@ -57,15 +57,16 @@ function createData(mood, prob) {
 const RightComponent = () => {
     const classes = useStyles();
 
-    const {title, artist, lyrics, results, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, lyricsError} = useContext(Context);
     const [stateTitle, setTitle] = title;
     const [stateArtist, setArtist] = artist;
     const [stateLyrics, setLyrics] = lyrics;
-    const [stateResults, setResults] = results;
     const [stateLyricsError, setLyricsError] = lyricsError;
 
     const [showErrorMessage, setShowErrorMessage] = useState(false);
     const [showResults, setShowResults] = useState(false);
+    const [results, setResults] = useState([]);
+    const [averageResults, setAverageResults] = useState([]);
     const [buttonDisabled, setButtonDisabled] = useState(false);
 
     const fetchEmotionResults = () => {
@@ -79,10 +80,17 @@ const RightComponent = () => {
                     setShowErrorMessage(true);
                 } else {
                     let formattedData = [];
-                    for (const property in response.data) {
-                        formattedData.push(createData(property, response.data[property]));
+                    for (const property in response.data[0]) {
+                        formattedData.push(createData(property, response.data[0][property]));
                     }
                     setResults(formattedData);
+
+                    let formattedAverageData = [];
+                    for (const property in response.data[1]) {
+                        formattedAverageData.push(createData(property, response.data[1][property]));
+                    }
+                    setAverageResults(formattedAverageData);
+
                     setShowErrorMessage(false);
                     setShowResults(true);
                 }
@@ -121,9 +129,14 @@ const RightComponent = () => {
                    </Alert>
                 : null}
             {showResults
-                ? <Paper className={classes.paper}>
-                        <ResultChart/>
+                ? <>
+                    <Paper className={classes.paper}>
+                        <ResultChart title={'Song Emotion Probabilities'} stateResults={results}/>
                     </Paper>
+                    <Paper className={classes.paper}>
+                        <ResultChart title={'Average Emotion Probabilities'} stateResults={averageResults}/>
+                    </Paper>
+                  </>
                 : null}
         </Container>
     )

@@ -36,14 +36,12 @@ const App = () => {
     const [title, setTitle] = useState('');
     const [artist, setArtist] = useState('');
     const [lyrics, setLyrics] = useState('');
-    const [results, setResults] = useState([]);
     const [lyricsError, setLyricsError] = useState(false);
 
     const contextValues = {
         title: [title, setTitle],
         artist: [artist, setArtist],
         lyrics: [lyrics, setLyrics],
-        results: [results, setResults],
         lyricsError: [lyricsError, setLyricsError]
     };
 

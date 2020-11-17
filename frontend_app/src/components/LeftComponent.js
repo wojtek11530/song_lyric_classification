@@ -46,7 +46,7 @@ const LeftComponent = () => {
         window.addEventListener('resize', handleResize)
     });
 
-    const {title, artist, lyrics, results, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, lyricsError} = useContext(Context);
     const [stateTitle, setTitle] = title;
     const [stateArtist, setArtist] = artist;
     const [stateLyrics, setLyrics] = lyrics;
