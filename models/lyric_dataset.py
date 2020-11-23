@@ -14,12 +14,14 @@ class LyricsDataset(Dataset):
     def __init__(self, song_df: pd.DataFrame, removing_stop_words: bool = False, lemmatization: bool = False):
         self._removing_stop_words = removing_stop_words
         self._lemmatization = lemmatization
+        self.word_embedder = WordEmbedder()
 
         song_df = self._preprocess_lyrics_in_df(song_df)
 
         self.emotion_data = label_encoder.transform(song_df['emotion_4Q'])
-        self.lyrics_data = song_df['lyrics'].values
-        self.word_embedder = WordEmbedder()
+
+        lyrics_data = song_df['lyrics'].values
+        self.embedding_data = [self._get_embeddings(lyrics) for lyrics in lyrics_data]
 
     @classmethod
     def from_file(cls, filepath: str, removing_stop_words: bool = False, lemmatization: bool = False):
@@ -28,8 +30,7 @@ class LyricsDataset(Dataset):
         return class_instance
 
     def __getitem__(self, index: int) -> Tuple[np.ndarray, int]:
-        return self._get_embeddings(self.lyrics_data[index]), \
-               self.emotion_data[index]
+        return self.embedding_data[index], self.emotion_data[index]
 
     def __len__(self) -> int:
         return len(self.emotion_data)

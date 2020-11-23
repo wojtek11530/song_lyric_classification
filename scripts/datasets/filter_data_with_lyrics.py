@@ -8,6 +8,8 @@ _PROJECT_PATH = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
 _DATASET_PATH = os.path.join(_PROJECT_PATH, 'datasets')
 _DATA_FILE = 'dataset_with_lyrics.csv'
 
+_VA_LIMIT = 0.25
+
 _LIMIT = 10000
 _LIMIT_WITHOUT_BRACKETS = 5500
 
@@ -75,5 +77,12 @@ for i in song_df.index:
 song_df.drop_duplicates(['lyrics'], inplace=True)
 
 song_df['general_genre'] = song_df.apply(lambda x: _GENRE_MAPPER[x['genre']], axis=1)
+
+for i in song_df.index:
+    valence = song_df.loc[i, "valence_mean"]
+    arousal = song_df.loc[i, "arousal_mean"]
+    if valence is not None and arousal is not None:
+        if abs(valence - 0.5) < _VA_LIMIT or abs(arousal - 0.5) < _VA_LIMIT:
+            song_df.drop([i], inplace=True)
 
 song_df.to_csv(os.path.join(_DATASET_PATH, 'filtered_' + _DATA_FILE))
