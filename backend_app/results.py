@@ -33,3 +33,16 @@ def get_average_results() -> Optional[Dict[str, float]]:
         return emotion_probabilities
     else:
         return None
+
+
+def get_results_count() -> int:
+    if os.path.isfile(_PATH):
+        df = pd.read_csv(_PATH)
+        return len(df)
+    else:
+        return 0
+
+
+def delete_results_csv():
+    if os.path.isfile(_PATH):
+        os.remove(_PATH)
