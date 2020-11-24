@@ -2,7 +2,7 @@ import React, {useState, useEffect, useContext} from 'react'
 import {TextField} from '@material-ui/core';
 import {makeStyles} from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
-import Typography from '@material-ui/core/Typography'
+import Typography from '@material-ui/core/Typography';
 import {Context} from "../Context";
 
 const useStyles = makeStyles(theme => ({
@@ -27,12 +27,12 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(1, 1.3, 0),
         textAlign: 'left',
         fontStyle: 'italic'
-    }
+    },
 }));
 
 const LeftComponent = () => {
     const classes = useStyles();
-    const divider = 30;
+    const divider = 32;
     const minRow = 12;
     const calcRows = () => {
         return Math.max(minRow, Math.round((window.innerHeight - 200) / divider));
@@ -46,7 +46,7 @@ const LeftComponent = () => {
         window.addEventListener('resize', handleResize)
     });
 
-    const {title, artist, lyrics, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, lyricsError, showResults, showAverageResults} = useContext(Context);
     const [stateTitle, setTitle] = title;
     const [stateArtist, setArtist] = artist;
     const [stateLyrics, setLyrics] = lyrics;

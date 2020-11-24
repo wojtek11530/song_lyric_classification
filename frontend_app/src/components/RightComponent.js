@@ -5,7 +5,13 @@ import Alert from '@material-ui/lab/Alert'
 import Container from '@material-ui/core/Container';
 import Button from '@material-ui/core/Button';
 import Paper from '@material-ui/core/Paper';
+import Box from '@material-ui/core/Box';
 import ResultChart from './ResultChart';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
 import {Context} from "../Context";
 
 const useStyles = makeStyles(theme => ({
@@ -16,18 +22,32 @@ const useStyles = makeStyles(theme => ({
         paddingRight: theme.spacing(0)
     },
 
-    button: {
-        margin: theme.spacing(1, 1, 1, 1),
+    box: {
+     margin: theme.spacing(1, 1, 1, 1),
         [theme.breakpoints.up('sm')]: {
             margin: theme.spacing(8, 1, 4, 1)
         },
+    },
+
+    button: {
         fontSize: '1.7rem',
+        padding: theme.spacing(2, 3),
+        fontWeight: 400,
+        lineHeight: 1,
+        textTransform: 'none',
+    },
+
+    deleteButton: {
+        margin: theme.spacing(1.5, 1.5),
+        padding: theme.spacing(1.5, 1),
+        fontSize: '0.85rem',
+        lineHeight: 1,
         fontWeight: 400,
         textTransform: 'none'
     },
 
     smallButton: {
-        margin: theme.spacing(1, 1, 1, 1),
+        margin: theme.spacing(1,0),
         fontSize: '1.2rem',
         fontWeight: 400,
         textTransform: 'none'
@@ -64,19 +84,37 @@ function createData(mood, prob) {
 const RightComponent = () => {
     const classes = useStyles();
 
-    const {title, artist, lyrics, lyricsError} = useContext(Context);
+    const {title, artist, lyrics, lyricsError, showResults, showAverageResults} = useContext(Context);
     const [stateTitle, setTitle] = title;
     const [stateArtist, setArtist] = artist;
     const [stateLyrics, setLyrics] = lyrics;
     const [stateLyricsError, setLyricsError] = lyricsError;
+    const [stateShowResults, setShowResults] = showResults;
+    const [stateShowAverageResults, setShowAverageResults] = showAverageResults;
 
-    const [showErrorMessage, setShowErrorMessage] = useState(false);
-    const [showResults, setShowResults] = useState(false);
-    const [results, setResults] = useState([]);
-    const [averageResultButtonName, setAverageResultButtonName] = useState('Show average songs emotions');
-    const [showAverageResults, setShowAverageResults] = useState(false);
-    const [averageResults, setAverageResults] = useState([]);
     const [buttonDisabled, setButtonDisabled] = useState(false);
+    const [showErrorMessage, setShowErrorMessage] = useState(false);
+    const [averageResultButtonName, setAverageResultButtonName] = useState('Show average songs emotions');
+    const [results, setResults] = useState([]);
+    const [averageResults, setAverageResults] = useState([]);
+    const [showDeleteButton, setShowDeleteButton] = useState(false);
+
+    const [openDialog, setOpenDialog] = useState(false);
+    const [dialogMessage, setDialogMessage] = useState('Removing of song emotions results has succeeded');
+
+    axios.get('http://localhost:5000/results_count')
+        .then(response => {
+            console.log(response);
+            if (response.status === 200) {
+                let count = response.data['count']
+                if (count > 0) {
+                    setShowDeleteButton(true);
+                } else {
+                    setShowDeleteButton(false);
+                }
+            }
+        })
+        .catch(error => console.log(error));
 
     const fetchEmotionResults = () => {
         axios
@@ -99,10 +137,10 @@ const RightComponent = () => {
                         formattedAverageData.push(createData(property, response.data[1][property]));
                     }
                     setAverageResults(formattedAverageData);
-
+                    setShowDeleteButton(true);
                     setShowErrorMessage(false);
-                    setShowAverageResults(false);
                     setShowResults(true);
+                    setShowAverageResults(stateShowAverageResults);
                 }
             })
             .catch(error => console.log(error));
@@ -123,32 +161,70 @@ const RightComponent = () => {
     }
 
     const onSmallButtonClick = () => {
-        if (showAverageResults == true) {
+        if (stateShowAverageResults == true) {
             setAverageResultButtonName('Show average songs emotions');
         } else {
             setAverageResultButtonName('Hide average songs emotions');
         }
-        setShowAverageResults(!showAverageResults);
+        setShowAverageResults(!stateShowAverageResults);
+    }
+
+    const handleClose = () => {
+        setOpenDialog(false);
+    };
+
+    const onDeleteButtonClick = () => {
+        axios
+            .get('http://localhost:5000/delete_emotions')
+            .then(response => {
+                if (response.status === 200) {
+                    setShowResults(false);
+                    setShowAverageResults(false);
+                    setShowDeleteButton(false);
+                    setOpenDialog(true);
+                    setAverageResultButtonName('Show average songs emotions');
+                    setDialogMessage('Removing of song emotions results has succeeded');
+                } else {
+                    setOpenDialog(true);
+                    setDialogMessage('Removing of song emotions results has failed');
+                }
+            })
+            .catch(error => console.log(error));
     }
 
     return (
+        <>
         <Container className={classes.container}>
-            <Button
-                size="large"
-                variant="contained"
-                color="primary"
-                disableElevation
-                className={classes.button}
-                disabled={buttonDisabled}
-                onClick={onButtonClick}>
-                Get Emotions!
-            </Button>
+            <Box display="flex" flexDirection="row" justifyContent="center" className={classes.box}>
+                 <Button
+                    size="large"
+                    variant="contained"
+                    color="primary"
+                    disableElevation
+                    className={classes.button}
+                    disabled={buttonDisabled}
+                    onClick={onButtonClick}>
+                    Get Emotions!
+                </Button>
+                {showDeleteButton
+                ? <>
+                    <Button
+                        size="small"
+                        variant="contained"
+                        disableElevation
+                        className={classes.deleteButton}
+                        onClick={onDeleteButtonClick}>
+                        {'Delete saved emotion results'}
+                    </Button>
+                  </>
+                : null}
+            </Box>
             {showErrorMessage
                 ?  <Alert severity="error" className={classes.alert}>
                         The emotion prediction has failed. The lyrics might be too short.
                    </Alert>
                 : null}
-            {showResults
+            {stateShowResults
                 ? <>
                     <Paper className={classes.paper}>
                         <ResultChart title={'Song Emotion Probabilities'} stateResults={results}/>
@@ -164,13 +240,30 @@ const RightComponent = () => {
                     </Button>
                   </>
                 : null}
-            {showAverageResults
+            {stateShowAverageResults
                 ?
                     <Paper className={classes.paper}>
                         <ResultChart title={'Average Emotion Probabilities'} stateResults={averageResults}/>
                     </Paper>
                 : null}
         </Container>
+        <Dialog open={openDialog} onClose={handleClose} aria-labelledby="alert-dialog-title"
+            aria-describedby="alert-dialog-description">
+            <DialogTitle id="alert-dialog-title">
+                {"Song emotion results removing"}
+            </DialogTitle>
+            <DialogContent>
+                <DialogContentText id="alert-dialog-description">
+                    {dialogMessage}
+                </DialogContentText>
+            </DialogContent>
+            <DialogActions>
+                <Button onClick={handleClose} color="primary">
+                    Ok
+                </Button>
+            </DialogActions>
+        </Dialog>
+        </>
     )
 }
 export default RightComponent;

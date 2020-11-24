@@ -56,7 +56,7 @@ export default function ResultChart({ title, stateResults }) {
             <ResponsiveContainer>
                 <BarChart
                     data={stateResults}
-                    margin={{top: 8, right: 8, bottom: 82, left: 0}}>
+                    margin={{top: 24, right: 8, bottom: 82, left: 0}}>
                     <XAxis dataKey="mood" tick={renderCustomAxisTick}/>
                     <YAxis tick={{fontSize: '1.1rem'}} tickFormatter={labelFormatter}/>
                     <Bar dataKey="prob" barSize={90} fill={theme.palette.secondary.light}>
