@@ -48,8 +48,11 @@ def get_count():
 
 @app.route('/delete_emotions', methods=['GET'])
 def delete_results():
-    delete_results_csv()
-    return '', 200
+    try:
+        delete_results_csv()
+        return '', 200
+    except OSError:
+        return '', 204
 
 
 def _get_emotion_probabilities(lyrics: str) -> Optional[Dict[str, float]]:
