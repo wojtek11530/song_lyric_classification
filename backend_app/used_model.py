@@ -11,8 +11,8 @@ _DEVICE = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_128_kern_[5, 10, 15]_drop_0.4_lr_0.0001_wd_0.0003_max_words_'
-    '256_rem_sw_True_lemm_False.pt'
+    'ConvNet_embed_200_filters_num_256_kern_[5, 10, 15]_drop_0.4_lr_0.0002_wd_0.0003_max_words_256_rem_sw_True'
+    '_lemm_False_smote_False_v2.pt'
 )
 
 
@@ -29,7 +29,7 @@ def _get_cnn_model() -> ConvNetClassifier:
         batch_size=128,
         learning_rate=1e-4,
         weight_decay=65e-4,
-        filters_number=128,
+        filters_number=256,
         kernels_sizes=[5, 10, 15],
         max_num_words=256,
         removing_stop_words=True,
