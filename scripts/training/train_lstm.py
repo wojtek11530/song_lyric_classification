@@ -19,7 +19,7 @@ def run_train_lstm():
         'output_dim': 4,
         'layer_dim': 1,
         'bidirectional': False,
-        'dropout': 0.5,
+        'dropout': 0.3,
         'batch_size': 128,
         'learning_rate': 1e-4,
         'weight_decay': 1e-4,

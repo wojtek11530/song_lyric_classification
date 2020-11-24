@@ -18,7 +18,7 @@ def run_train_gru():
         'hidden_dim': 200,
         'output_dim': 4,
         'layer_dim': 1,
-        'dropout': 0.0,
+        'dropout': 0.3,
         'batch_size': 128,
         'learning_rate': 9e-5,
         'weight_decay': 1e-5,
