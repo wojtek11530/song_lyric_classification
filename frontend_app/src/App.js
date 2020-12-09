@@ -48,12 +48,16 @@ const App = () => {
     const [artist, setArtist] = useState('');
     const [lyrics, setLyrics] = useState('');
     const [lyricsError, setLyricsError] = useState(false);
+    const [showResults, setShowResults] = useState(false);
+    const [showAverageResults, setShowAverageResults] = useState(false);
 
     const contextValues = {
         title: [title, setTitle],
         artist: [artist, setArtist],
         lyrics: [lyrics, setLyrics],
-        lyricsError: [lyricsError, setLyricsError]
+        lyricsError: [lyricsError, setLyricsError],
+        showResults: [showResults, setShowResults],
+        showAverageResults: [showAverageResults, setShowAverageResults],
     };
 
     return (

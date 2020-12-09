@@ -27,8 +27,8 @@ def evaluate_fragmentized_mlp():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'FragConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.4_lr_0.0003_wd_0.0003_max_words_64_rem_sw_True'
-    '_lemm_False_10-21-2020_12.49.59.pt'
+    'FragConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.4_lr_0.0003_wd_0.0003_max_words_64'
+    '_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -78,6 +78,6 @@ def evaluate_fragmentized_lstm():
 
 
 if __name__ == '__main__':
-    # evaluate_fragmentized_mlp()
+    evaluate_fragmentized_mlp()
+    evaluate_fragmentized_lstm()
     evaluate_fragmentized_conv_net()
-    # evaluate_fragmentized_lstm()

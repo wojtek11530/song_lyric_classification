@@ -13,7 +13,7 @@ song_df = pd.read_csv(os.path.join(_DATASET_PATH, _DATA_FILE), index_col=0)
 
 df_train, df_test = train_test_split(
     song_df,
-    test_size=0.2,
+    test_size=0.3,
     random_state=_RANDOM_SEED,
     stratify=song_df['emotion_4Q']
 )
