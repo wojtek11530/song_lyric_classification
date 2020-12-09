@@ -13,7 +13,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 _MLP_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'mlp', 'saved_models',
-    'FragMLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_True_lemm_False_11-24-2020_10.45.35.pt'
+    'FragMLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -27,8 +27,8 @@ def evaluate_fragmentized_mlp():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'FragConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.4_lr_0.0003_wd_0.0003_max_words_64_rem_sw_True'
-    '_lemm_False_11-24-2020_11.29.45.pt'
+    'FragConvNet_embed_200_filters_num_64_kern_[5, 10, 15]_drop_0.4_lr_0.0003_wd_0.0003_max_words_64'
+    '_rem_sw_True_lemm_False.pt'
 )
 
 

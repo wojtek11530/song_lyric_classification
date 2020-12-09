@@ -3,7 +3,7 @@ from typing import Dict, Optional
 from flask import Flask, abort, jsonify, request
 from flask_cors import CORS
 
-from backend_app.results import add_to_results, get_average_results, get_results_count, delete_results_csv
+from backend_app.results import add_to_results, delete_results_csv, get_average_results, get_results_count
 from backend_app.used_model import get_model
 from models.label_encoder import label_encoder
 

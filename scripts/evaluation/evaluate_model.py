@@ -49,6 +49,7 @@ def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     plt.show()
     # plt.savefig(str(model_type) + '_conf.pdf', bbox_inches='tight')
 
+
 _MLP_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'mlp', 'saved_models',
     'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_True_lemm_False_smote_False_v3.pt'
