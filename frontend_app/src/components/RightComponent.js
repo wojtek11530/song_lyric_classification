@@ -161,7 +161,7 @@ const RightComponent = () => {
     }
 
     const onSmallButtonClick = () => {
-        if (stateShowAverageResults == true) {
+        if (stateShowAverageResults === true) {
             setAverageResultButtonName('Show average songs emotions');
         } else {
             setAverageResultButtonName('Hide average songs emotions');
