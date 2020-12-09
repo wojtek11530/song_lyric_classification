@@ -1,3 +1,4 @@
+import locale
 import os
 import pickle as pkl
 from collections import defaultdict
@@ -81,9 +82,9 @@ def _train_conv_net(df: pd.DataFrame, ratio: float) -> ConvNetClassifier:
         'output_dim': 4,
         'dropout': 0.4,
         'batch_size': 128,
-        'learning_rate': 1e-4,
+        'learning_rate': 2e-4,
         'weight_decay': 3e-4,
-        'filters_number': 128,
+        'filters_number': 256,
         'kernels_sizes': [5, 10, 15],
         'max_num_words': 256,
         'removing_stop_words': True,
@@ -127,9 +128,9 @@ def _train_lstm(df: pd.DataFrame, ratio: float) -> LSTMClassifier:
         'output_dim': 4,
         'layer_dim': 1,
         'bidirectional': False,
-        'dropout': 0.0,
+        'dropout': 0.3,
         'batch_size': 128,
-        'learning_rate': 9e-5,
+        'learning_rate': 1e-4,
         'weight_decay': 1e-4,
         'max_num_words': 200,
         'removing_stop_words': True,
@@ -163,14 +164,17 @@ def _get_trainer(logger: TensorBoardLogger, max_epochs: int) -> pl.Trainer:
 
 
 def plot_results():
-    file_name = 'size_of_training_dataset_analysis_results.pkl'
+    file_name = 'size_of_training_dataset_analysis_results_11-26-2020_13.29.pkl'
     with open(file_name, 'rb') as handle:
         training_data_dictionary = pkl.load(handle)
         _plot_average_results(training_data_dictionary)
-        _plot_boxplots(training_data_dictionary)
+        # _plot_boxplots(training_data_dictionary)
 
 
 def _plot_average_results(training_data_dictionary: Dict[str, Dict[float, List[Dict]]]):
+    locale.setlocale(locale.LC_NUMERIC, "pl_PL")
+    plt.rcParams['axes.formatter.use_locale'] = True
+
     for model_name, ratios_dict in training_data_dictionary.items():
         ratios = []
         avg_accuracy = []
@@ -187,16 +191,22 @@ def _plot_average_results(training_data_dictionary: Dict[str, Dict[float, List[D
 
     plt.xlim((0, 1.1))
     locs, labels = plt.xticks()
-    plt.xticks(locs[:-1], ['{:.0%}'.format(x) for x in locs[:-1]])
+    plt.xticks(locs[:-1], ['{:.0%}'.format(x) for x in locs[:-1]], fontsize=12)
+    plt.yticks(fontsize=12)
     plt.grid(axis='y')
-    plt.legend(loc=4)
-    plt.ylabel('Średnia dokładność modelu (avg. accuracy)')
-    plt.xlabel('Użycie zbioru treningowego')
+    plt.legend(loc=4, fontsize=12)
+    plt.ylabel('Średnia dokładność modelu', fontsize=14)
+    plt.xlabel('Użycie zbioru treningowego', fontsize=14)
     plt.tight_layout()
     plt.show()
 
 
 def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]]):
+    locale.setlocale(locale.LC_NUMERIC, "pl_PL")
+    plt.rcParams['axes.formatter.use_locale'] = True
+
+    plt.figure(figsize=(8, 5))
+
     first_key = list(training_data_dictionary.keys())[0]
     ratios = list(training_data_dictionary[first_key].keys())
     models_number = len(training_data_dictionary)
@@ -226,12 +236,20 @@ def _plot_boxplots(training_data_dictionary: Dict[str, Dict[float, List[Dict]]])
         legend_elements.append(mpatches.Patch(facecolor=color, edgecolor='k', label=model_name))
 
     x_ticks_labels = ['{:.0%}'.format(x) for x in ratios]
-    plt.xticks(basic_positions, x_ticks_labels)
-    plt.legend(handles=legend_elements, loc=4)
+
+    for pos_curr, pos_next in zip(basic_positions[:-1], basic_positions[1:]):
+        pos = (pos_curr + pos_next) / 2
+        plt.plot([pos, pos], [0, 1], lw=0.5, c='grey')
+
+    plt.ylim((0.24, 0.65))
+
+    plt.yticks(fontsize=12)
+    plt.xticks(basic_positions, x_ticks_labels, fontsize=12)
+    plt.legend(handles=legend_elements, loc=4, fontsize=12)
     plt.grid(axis='y')
     # plt.ylim(bottom=0.5)
-    plt.ylabel('Dokładność modelu')
-    plt.xlabel('Użycie zbioru treningowego')
+    plt.ylabel('Dokładność modelu', fontsize=14)
+    plt.xlabel('Użycie zbioru treningowego', fontsize=14)
     plt.tight_layout()
     plt.show()
 

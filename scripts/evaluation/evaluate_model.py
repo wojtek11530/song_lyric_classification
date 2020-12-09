@@ -38,6 +38,7 @@ def get_classification_report_for_evaluation(base_model: BaseModel) -> Dict:
 
 
 def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
+    plt.figure()
     hmap = sns.heatmap(conf_matrix, annot=True, fmt="d", cmap="Blues", cbar=False,
                        annot_kws={"fontsize": 18}, square=True)
     hmap.yaxis.set_ticklabels(hmap.yaxis.get_ticklabels(), rotation=0, fontsize=18)
@@ -46,11 +47,11 @@ def show_confusion_matrix(conf_matrix: pd.DataFrame) -> None:
     plt.xlabel('Predykowana klasa', fontsize=18)
     plt.tight_layout()
     plt.show()
-
+    # plt.savefig(str(model_type) + '_conf.pdf', bbox_inches='tight')
 
 _MLP_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'mlp', 'saved_models',
-    'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_True_lemm_False_smote_False.pt'
+    'MLP_input_200_drop_0.5_lr_0.001_wd_1e-05_rem_sw_True_lemm_False_smote_False_v3.pt'
 )
 
 
@@ -90,7 +91,7 @@ def evaluate_lstm():
 
 _GRU_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'gru', 'saved_models',
-    'GRU_input_200_hidden_200_drop_0.3_lay_num_1_lr_9e-05_wd_1e-05_max_words_200_rem_sw_True_lemm_False.pt'
+    'GRU_input_200_hidden_200_drop_0.0_lay_num_1_lr_9e-05_wd_1e-05_max_words_200_rem_sw_True_lemm_False.pt'
 )
 
 
@@ -115,7 +116,8 @@ def evaluate_gru():
 
 _CONV_MODEL_PATH = os.path.join(
     _PROJECT_PATH, 'models', 'conv_net', 'saved_models',
-    'ConvNet_embed_200_filters_num_256_kern_[5, 10, 15]_drop_0.4_lr_0.0002_wd_0.0003_max_words_256_rem_sw_True_lemm_False_smote_False_v2.pt'
+    'ConvNet_embed_200_filters_num_256_kern_[5, 10, 15]_drop_0.4_lr_0.0002_wd_0.0003_max_words_256_rem_sw_True'
+    '_lemm_False_smote_False_v2.pt'
 )
 
 

@@ -78,6 +78,6 @@ def evaluate_fragmentized_lstm():
 
 
 if __name__ == '__main__':
-    # evaluate_fragmentized_mlp()
-    # evaluate_fragmentized_lstm()
+    evaluate_fragmentized_mlp()
+    evaluate_fragmentized_lstm()
     evaluate_fragmentized_conv_net()
